@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import viewsets
-from bookingapi.serializers import UserSerializer, GroupSerializer, BookableLocationSerializer, SeatSerializer, LocationBookingSerializer, SeatBookingSerializer, SectionSerializer, RowSerializer
-from bookingapi.models import BookableLocation, Seat, LocationBooking, SeatBooking, Row, Section
+from bookingapi.serializers import UserSerializer, GroupSerializer, BookableLocationSerializer, SeatSerializer, LocationBookingSerializer, SeatBookingSerializer, EventSerializer
+from bookingapi.models import BookableLocation, Seat, LocationBooking, SeatBooking, Event
 from rest_framework.permissions import IsAuthenticated
 from dry_rest_permissions.generics import DRYPermissions
 
@@ -27,10 +27,33 @@ class BookableLocationViewSet(viewsets.ModelViewSet):
     """
     queryset = BookableLocation.objects.all()
     serializer_class = BookableLocationSerializer
-    permission_classes = (DRYPermissions,)
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(created_by=self.request.user)
     
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+    
+    def perform_update(self, serializer):
+        serializer.save(updated=self.request.user)
+
+class EventViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows events to be viewed or edited.
+    """
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    permission_classes = (DRYPermissions,)
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(created_by=self.request.user)
+    
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user)
+    
+    def perform_update(self, serializer):
+        serializer.save(updated=self.request.user)
 
 class SeatViewSet(viewsets.ModelViewSet):
     """
@@ -40,8 +63,14 @@ class SeatViewSet(viewsets.ModelViewSet):
     serializer_class = SeatSerializer
     permission_classes = (DRYPermissions,)
     
+    def get_queryset(self):
+        return super().get_queryset().filter(created_by=self.request.user)
+    
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+    
+    def perform_update(self, serializer):
+        serializer.save(updated=self.request.user)
     
 class LocationBookingViewSet(viewsets.ModelViewSet):
     """
@@ -51,8 +80,14 @@ class LocationBookingViewSet(viewsets.ModelViewSet):
     serializer_class = LocationBookingSerializer
     permission_classes = (DRYPermissions,)
     
+    def get_queryset(self):
+        return super().get_queryset().filter(created_by=self.request.user)
+    
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+    
+    def perform_update(self, serializer):
+        serializer.save(updated=self.request.user)
 
 class SeatBookingViewSet(viewsets.ModelViewSet):
     """
@@ -62,29 +97,11 @@ class SeatBookingViewSet(viewsets.ModelViewSet):
     serializer_class = SeatBookingSerializer
     permission_classes = (DRYPermissions,)
     
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
-
-class SectionViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows sections to be viewed or edited.
-    """
-    queryset = Section.objects.all()
-    serializer_class = SectionSerializer
-    permission_classes = (DRYPermissions,)
+    def get_queryset(self):
+        return super().get_queryset().filter(created_by=self.request.user)
     
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
-
-class RowViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows rows to be viewed or edited.
-    """
-    queryset = Row.objects.all()
-    serializer_class = RowSerializer
-    permission_classes = (DRYPermissions,)
     
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
-
-
+    def perform_update(self, serializer):
+        serializer.save(updated=self.request.user)
