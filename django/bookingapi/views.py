@@ -1,9 +1,12 @@
-from django.contrib.auth.models import User, Group
-from rest_framework import viewsets
-from bookingapi.serializers import UserSerializer, GroupSerializer, BookableLocationSerializer, SeatSerializer, LocationBookingSerializer, SeatBookingSerializer, EventSerializer
-from bookingapi.models import BookableLocation, Seat, LocationBooking, SeatBooking, Event
-from rest_framework.permissions import IsAuthenticated
+from bookingapi.models import *
+from bookingapi.serializers import *
 from dry_rest_permissions.generics import DRYPermissions
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from django.core.exceptions import ValidationError
+
+from django.contrib.auth.models import Group, User
+
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -28,23 +31,6 @@ class BookableLocationViewSet(viewsets.ModelViewSet):
     queryset = BookableLocation.objects.all()
     serializer_class = BookableLocationSerializer
     permission_classes = [IsAuthenticated]
-    
-    def get_queryset(self):
-        return super().get_queryset().filter(created_by=self.request.user)
-    
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
-    
-    def perform_update(self, serializer):
-        serializer.save(updated=self.request.user)
-
-class EventViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows events to be viewed or edited.
-    """
-    queryset = Event.objects.all()
-    serializer_class = EventSerializer
-    permission_classes = (DRYPermissions,)
     
     def get_queryset(self):
         return super().get_queryset().filter(created_by=self.request.user)
@@ -101,6 +87,10 @@ class SeatBookingViewSet(viewsets.ModelViewSet):
         return super().get_queryset().filter(created_by=self.request.user)
     
     def perform_create(self, serializer):
+        if serializer.validated_data['seat'].restricted:
+            raise ValidationError('Seat is restricted')
+        if serializer.validated_data['seat'].bookable_location != serializer.validated_data['location_booking'].bookable_location:
+            raise ValidationError('Seat and location booking are not in the same location')
         serializer.save(created_by=self.request.user)
     
     def perform_update(self, serializer):

@@ -10,7 +10,6 @@ router.register(r'bookablelocations', views.BookableLocationViewSet, basename='b
 router.register(r'seats', views.SeatViewSet, basename='seat')
 router.register(r'locationbookings', views.LocationBookingViewSet, basename='locationbooking')
 router.register(r'seatbookings', views.SeatBookingViewSet, basename='seatbooking')
-router.register(r'events', views.EventViewSet, basename='event')
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
