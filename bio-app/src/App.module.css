@@ -31,3 +31,46 @@
     transform: rotate(360deg);
   }
 }
+
+.topbar {
+  background-color: cornflowerblue;
+  height: 50px;
+  width: 100%;
+  display: flex;
+  color: 'black';
+  align-self: 'top';
+  justify-content: center;
+}
+
+.theatre {
+  background-color: rgb(243, 244, 247);
+  min-height: 400px;
+  max-height: 600px;
+  min-width: 600px;
+  margin: 100px;
+  margin-top: 20px;
+  /* display: flex; */
+  border-width: 2px;
+  border-color:gold;
+  /* align-self: center; */
+  /* justify-self: center; */
+  /* justify-content: space-evenly; */
+  /* align-items: stretch; */
+  color: 'black';
+}
+
+.seatContainer {
+  display: flex;
+  justify-self: center;
+  align-items: center;
+}
+
+.seat {
+  color: 'black';
+  height: 50px;
+  width: 50px;
+  /* background-color: rgb(172, 172, 6); */
+  margin: 20px;
+  
+  
+}
