@@ -2,12 +2,16 @@ import logo from './logo.svg';
 import styles from './App.module.css';
 import Topbar from './components/topbar';
 import Theatre from './components/theatre';
+import BookButton from './components/bookbutton';
 
 function App() {
   return (
-    <div class={styles.App}>
-       <Topbar />
-       <Theatre />
+    // <div>
+      <div class={styles.App}>
+        <Topbar />
+        <Theatre />
+      {/* </div> */}
+      <BookButton />
     </div>
    
     // <div class={styles.App}>

@@ -70,7 +70,14 @@
   height: 50px;
   width: 50px;
   /* background-color: rgb(172, 172, 6); */
-  margin: 20px;
-  
-  
+  margin: 20px; 
+}
+
+.bookButton {
+  height: 50px;
+  width: 300px;
+  background-color: lightslategrey;
+  margin-top: 30px;
+  font-weight: bolder;
+  font-size: large;
 }
