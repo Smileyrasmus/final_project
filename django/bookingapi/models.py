@@ -152,3 +152,12 @@ class SeatBooking(basemodel):
 
     def has_object_write_permission(self, request):
         return request.user == self.created_by
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["seat", "location_booking"],
+                name="unique_seat_booking",
+                violation_error_message="Seat already booked for this event",
+            )
+        ]

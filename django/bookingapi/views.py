@@ -4,6 +4,7 @@ from dry_rest_permissions.generics import DRYPermissions
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import ValidationError
+from django.db.models import Count, F
 
 from django.contrib.auth.models import Group, User
 
@@ -38,7 +39,12 @@ class BookableLocationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return super().get_queryset().filter(created_by=self.request.user)
+        if self.request.user.is_superuser:
+            return BookableLocation.objects.all().annotate(seat_amount=Count("seats"))
+        else:
+            return BookableLocation.objects.filter(
+                created_by__groups__in=self.request.user.groups.all()
+            ).annotate(seat_amount=Count("seats"))
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -57,7 +63,12 @@ class SeatViewSet(viewsets.ModelViewSet):
     permission_classes = (DRYPermissions,)
 
     def get_queryset(self):
-        return super().get_queryset().filter(created_by=self.request.user)
+        if self.request.user.is_superuser:
+            return Seat.objects.all()
+        else:
+            return Seat.objects.filter(
+                created_by__groups__in=self.request.user.groups.all()
+            )
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -71,12 +82,16 @@ class LocationBookingViewSet(viewsets.ModelViewSet):
     API endpoint that allows location bookings to be viewed or edited.
     """
 
-    queryset = LocationBooking.objects.all()
     serializer_class = LocationBookingSerializer
     permission_classes = (DRYPermissions,)
 
     def get_queryset(self):
-        return super().get_queryset().filter(created_by=self.request.user)
+        if self.request.user.is_superuser:
+            return LocationBooking.objects.all()
+        else:
+            return LocationBooking.objects.filter(
+                created_by__groups__in=self.request.user.groups.all()
+            )
 
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
@@ -95,7 +110,26 @@ class SeatBookingViewSet(viewsets.ModelViewSet):
     permission_classes = (DRYPermissions,)
 
     def get_queryset(self):
-        return super().get_queryset().filter(created_by=self.request.user)
+        if self.request.user.is_superuser:
+            return SeatBooking.objects.all().annotate(
+                seat_name=F("seat__name"),
+                location_name=F("location_booking__bookable_location__name"),
+                event_name=F("location_booking__event_name"),
+                event_description=F("location_booking__event_description"),
+                start_time=F("location_booking__start_time"),
+                end_time=F("location_booking__end_time"),
+            )
+        else:
+            return SeatBooking.objects.filter(
+                created_by__groups__in=self.request.user.groups.all()
+            ).annotate(
+                seat_name=F("seat__name"),
+                location_name=F("location_booking__bookable_location__name"),
+                event_name=F("location_booking__event_name"),
+                event_description=F("location_booking__event_description"),
+                start_time=F("location_booking__start_time"),
+                end_time=F("location_booking__end_time"),
+            )
 
     def perform_create(self, serializer):
         if serializer.validated_data["seat"].restricted:
