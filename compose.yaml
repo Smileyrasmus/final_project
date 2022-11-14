@@ -14,3 +14,20 @@ services:
     restart: always
     ports:
       - 8080:8080
+  
+  booking_api:
+    build: ./django
+    restart: always
+    # sleep 3 seconds becuase django fails if db container aren't ready yet. Should be fixed in python code rather than here
+    command: bash -c "sleep 3 && python manage.py migrate && python manage.py runserver 0.0.0.0:8000" 
+    depends_on:
+      - db
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DBNAME: "booking_app"
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - 8001:8000
+      
