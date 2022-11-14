@@ -1,16 +1,24 @@
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import styles from './App.module.css';
 import Topbar from './components/topbar';
 import Theatre from './components/theatre';
 import BookButton from './components/bookbutton';
+import MovieSelector from './components/movieselector';
 
 function App() {
+  function readMovieTitle() {
+
+  }
+
+  function readSeatID() {
+
+  }
+
   return (
-    // <div>
-      <div class={styles.App}>
-        <Topbar />
-        <Theatre />
-      {/* </div> */}
+    <div class={styles.App}>
+      <Topbar />
+      <MovieSelector />
+      <Theatre />  
       <BookButton />
     </div>
    

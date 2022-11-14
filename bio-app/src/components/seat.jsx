@@ -3,19 +3,27 @@ import { createSignal, mergeProps } from "solid-js";
 
 
 function Seat(props) {
-    // const seatSelector = () =>{
-    //     const [available, toggleAvailability] = createSignal(true),
-        
-    // }
-    const [select, setSelect] = createSignal('gray');
+    const [select, setSelect] = disableSeat();
+
+    function disableSeat() {
+        var color = "";
+        if (props.disabled === 'true') {
+            color = 'red'
+        } else{
+            color = 'gray'
+        }
+        return(
+            createSignal(color)
+        );
+    }
 
     function clicked() {
-        setSelect(select() == 'red' ? 'green' : 'red')
+        setSelect(select() == 'gray' ? 'green' : 'gray')
     }
     
     return(
         <div>
-            <button class={styles.seat} style={{background:select()}} onClick={clicked}>
+            <button class={styles.seat} style={{background:select()}} onClick={clicked} disabled={props.disabled}>
                 {props.id}
             </button>
         </div>

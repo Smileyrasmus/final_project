@@ -1,8 +1,8 @@
 import styles from '../App.module.css';
 
-function BookButton() {
+function BookButton(props) {
     function clickedBook() {
-        console.log("Vi har sendt en brevdue afsted");
+        console.log('Filmen' + {props} + 'Vi har sendt en brevdue afsted');
     }
 
     return(
