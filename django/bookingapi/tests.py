@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.utils import timezone
-
+from django.db.utils import IntegrityError
 from .models import *
 
 
@@ -39,7 +39,23 @@ class SeatTestCase(TestCase):
         self.assertEqual(test_seat.name, "Test Seat")
         self.assertEqual(test_seat.description, "Test Description")
         self.assertEqual(test_seat.bookable_location.name, "Test Location")
-        self.assertEqual(test_seat.created_by.username, "testuser")
+        self.assertEqual(test_seat.created_by.username, "testuser"),
+
+    def test_seat_unique(self):
+        """Seats should be unique to a bookable location"""
+        test_user = User.objects.create_user(username="testuser2", password="testuser2")
+        test_location = BookableLocation.objects.create(
+            name="Test Location 2",
+            description="Test Description 2",
+            created_by=test_user,
+        )
+        Seat.objects.create(
+            name="Test Seat",
+            description="Test Description",
+            bookable_location=test_location,
+            created_by=test_user,
+        )
+        self.assertRaises(IntegrityError)
 
 
 class LocationBookingTestCase(TestCase):
@@ -71,6 +87,30 @@ class LocationBookingTestCase(TestCase):
         self.assertEqual(test_location_booking.event_name, "Test Event")
         self.assertEqual(test_location_booking.event_description, "Test Description")
         self.assertEqual(test_location_booking.created_by.username, "testuser")
+
+    def test_location_booking_overlapping(self):
+        """Location bookings should not be able to overlap"""
+        test_user = User.objects.create_user(username="testuser2", password="testuser2")
+        test_location = BookableLocation.objects.create(
+            name="Test Location 2", description="Test Description", created_by=test_user
+        )
+        LocationBooking.objects.create(
+            bookable_location=test_location,
+            start_time=initial_start_time,
+            end_time=initial_end_time,
+            event_name="Test Event 2",
+            event_description="Test Description",
+            created_by=test_user,
+        )
+        with self.assertRaises(ValidationError):
+            LocationBooking.objects.create(
+                bookable_location=test_location,
+                start_time=initial_start_time,
+                end_time=initial_end_time,
+                event_name="Test Event 3",
+                event_description="Test Description",
+                created_by=test_user,
+            )
 
 
 class SeatBookingTestCase(TestCase):
@@ -108,3 +148,17 @@ class SeatBookingTestCase(TestCase):
         self.assertEqual(test_seat_booking.seat.name, "Test Seat")
         self.assertEqual(test_seat_booking.location_booking.event_name, "Test Event")
         self.assertEqual(test_seat_booking.created_by.username, "testuser")
+
+    def test_seat_booking_unique(self):
+        """Seat bookings should be unique"""
+        test_user = User.objects.get(username="testuser")
+        test_location = BookableLocation.objects.get(name="Test Location")
+        test_seat = Seat.objects.get(name="Test Seat")
+        test_location_booking = LocationBooking.objects.get(event_name="Test Event")
+        with self.assertRaises(IntegrityError):
+            SeatBooking.objects.create(
+                customer="Test Customer",
+                seat=test_seat,
+                location_booking=test_location_booking,
+                created_by=test_user,
+            )
