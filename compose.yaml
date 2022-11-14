@@ -14,22 +14,28 @@ services:
     restart: always
     ports:
       - 8080:8080
-  
+
   booking_api:
     build: ./django
     restart: always
+    depends_on:
+      - db
     # sleep some seconds becuase django fails if db container aren't ready yet.
     # This is especially true on our pi server.
     # Should be fixed in python code rather than here if possible.
-    command: bash -c "sleep ${DJANGO_DELAY:-3} && python manage.py migrate && python manage.py runserver 0.0.0.0:8000" 
-    depends_on:
-      - db
+    command: bash -c "sleep ${DJANGO_DELAY:-3} && python manage.py migrate && python manage.py createsuperuser --noinput && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - type: bind
+        source: ./django
+        target: /usr/src/app
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST:-db}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
       POSTGRES_DBNAME: ${POSTGRES_DBNAME:-booking_app}
       POSTGRES_USER: ${POSTGRES_USER:-admin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+      DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME:-admin}
+      DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL:-admin@example.com}
+      DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD:-admin}
     ports:
-      - 8001:8000
-      
+      - 8000:8000
