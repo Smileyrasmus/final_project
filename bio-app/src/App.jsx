@@ -1,27 +1,23 @@
 //import logo from './logo.svg';
-import styles from './App.module.css';
-import Topbar from './components/topbar';
-import Theatre from './components/theatre';
-import BookButton from './components/bookbutton';
-import MovieSelector from './components/movieselector';
+import styles from "./App.module.css";
+import Topbar from "./components/topbar";
+import Theatre from "./components/theatre";
+import BookButton from "./components/bookbutton";
+import MovieSelector from "./components/movieselector";
 
 function App() {
-  function readMovieTitle() {
+  function readMovieTitle() {}
 
-  }
-
-  function readSeatID() {
-
-  }
+  function readSeatID() {}
 
   return (
     <div class={styles.App}>
       <Topbar />
       <MovieSelector />
-      <Theatre />  
+      <Theatre />
       <BookButton />
     </div>
-   
+
     // <div class={styles.App}>
     //   <header class={styles.header}>
     //     {/* <img src={logo} class={styles.logo} alt="logo" />
