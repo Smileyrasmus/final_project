@@ -10,8 +10,11 @@ def make_dummy_data(apps, schema_editor):
     Seat = apps.get_model("bookingapi", "Seat")
     LocationBooking = apps.get_model("bookingapi", "LocationBooking")
     SeatBooking = apps.get_model("bookingapi", "SeatBooking")
-    
-    user = User.objects.create_user(username="DummyUser", password="DummyPassword")
+
+    try:
+        user = User.objects.get(username="DummyUser")
+    except:
+        user = User.objects.create_user(username="DummyUser", password="DummyPassword")
     bookable_location = BookableLocation.objects.create(
         name="DummyLocation", description="DummyDescription", created_by=user
     )
@@ -37,6 +40,7 @@ def make_dummy_data(apps, schema_editor):
         created_by=user,
     )
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -44,5 +48,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(make_dummy_data),
+        # noop ignores this migration if it's reversed
+        migrations.RunPython(make_dummy_data, reverse_code=migrations.RunPython.noop),
     ]
