@@ -18,16 +18,33 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 class BookableLocationSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source="created_by.username")
+    user_link = serializers.HyperlinkedRelatedField(
+        view_name="user-detail", read_only=True, source="created_by"
+    )
+    seat_amount = serializers.ReadOnlyField()
 
     class Meta:
         model = BookableLocation
-        fields = ["url", "id", "name", "description", "user"]
+        fields = [
+            "url",
+            "id",
+            "name",
+            "description",
+            "user_link",
+            "user",
+            "seat_amount",
+        ]
         read_only_fields = ["user"]
 
 
 class SeatSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source="created_by.username")
-    bookable_location_link = serializers.HyperlinkedRelatedField(view_name="bookablelocation-detail", read_only=True)
+    user_link = serializers.HyperlinkedRelatedField(
+        view_name="user-detail", read_only=True, source="created_by"
+    )
+    bookable_location_link = serializers.HyperlinkedRelatedField(
+        view_name="bookablelocation-detail", read_only=True
+    )
 
     class Meta:
         model = Seat
@@ -39,6 +56,7 @@ class SeatSerializer(serializers.HyperlinkedModelSerializer):
             "restricted",
             "bookable_location",
             "user",
+            "user_link",
             "bookable_location_link",
         ]
         read_only_fields = ["user"]
@@ -46,8 +64,13 @@ class SeatSerializer(serializers.HyperlinkedModelSerializer):
 
 class LocationBookingSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source="created_by.username")
-    bookable_location_link = serializers.HyperlinkedRelatedField(view_name="bookablelocation-detail", read_only=True)
-    
+    bookable_location_link = serializers.HyperlinkedRelatedField(
+        view_name="bookablelocation-detail", read_only=True
+    )
+    user_link = serializers.HyperlinkedRelatedField(
+        view_name="user-detail", read_only=True, source="created_by"
+    )
+
     class Meta:
         model = LocationBooking
         fields = [
@@ -59,6 +82,7 @@ class LocationBookingSerializer(serializers.HyperlinkedModelSerializer):
             "event_name",
             "event_description",
             "user",
+            "user_link",
             "bookable_location_link",
         ]
         read_only_fields = ["user"]
@@ -66,10 +90,39 @@ class LocationBookingSerializer(serializers.HyperlinkedModelSerializer):
 
 class SeatBookingSerializer(serializers.HyperlinkedModelSerializer):
     user = serializers.ReadOnlyField(source="created_by.username")
-    seat_link = serializers.HyperlinkedRelatedField(view_name="seat-detail", read_only=True)
-    location_booking_link = serializers.HyperlinkedRelatedField(view_name="locationbooking-detail", read_only=True)
+    seat_link = serializers.HyperlinkedRelatedField(
+        view_name="seat-detail", read_only=True
+    )
+    location_booking_link = serializers.HyperlinkedRelatedField(
+        view_name="locationbooking-detail", read_only=True
+    )
+    user_link = serializers.HyperlinkedRelatedField(
+        view_name="user-detail", read_only=True, source="created_by"
+    )
+    seat_name = serializers.ReadOnlyField()
+    location_name = serializers.ReadOnlyField()
+    event_name = serializers.ReadOnlyField()
+    event_description = serializers.ReadOnlyField()
+    start_time = serializers.ReadOnlyField()
+    end_time = serializers.ReadOnlyField()
 
     class Meta:
         model = SeatBooking
-        fields = ["url", "id", "customer", "seat", "location_booking", "user", "seat_link", "location_booking_link"]
+        fields = [
+            "url",
+            "id",
+            "customer",
+            "seat",
+            "location_booking",
+            "user",
+            "seat_link",
+            "user_link",
+            "location_booking_link",
+            "seat_name",
+            "location_name",
+            "event_name",
+            "event_description",
+            "start_time",
+            "end_time",
+        ]
         read_only_fields = ["user"]

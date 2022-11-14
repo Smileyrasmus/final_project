@@ -6,6 +6,7 @@ from django.utils import timezone
 
 def make_dummy_data(apps, schema_editor):
     User = apps.get_model("auth", "User")
+    Group = apps.get_model("auth", "Group")
     BookableLocation = apps.get_model("bookingapi", "BookableLocation")
     Seat = apps.get_model("bookingapi", "Seat")
     LocationBooking = apps.get_model("bookingapi", "LocationBooking")
@@ -15,6 +16,17 @@ def make_dummy_data(apps, schema_editor):
         user = User.objects.get(username="DummyUser")
     except:
         user = User.objects.create_user(username="DummyUser", password="DummyPassword")
+
+    try:
+        Group.objects.get(name="DummyGroup")
+    except:
+        Group.objects.create(name="DummyGroup")
+
+    try:
+        User.groups.get(name="DummyGroup")
+    except:
+        Group.objects.get(name="DummyGroup").user_set.add(user)
+
     bookable_location = BookableLocation.objects.create(
         name="DummyLocation", description="DummyDescription", created_by=user
     )
