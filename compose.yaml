@@ -23,7 +23,7 @@ services:
     # sleep some seconds becuase django fails if db container aren't ready yet.
     # This is especially true on our pi server.
     # Should be fixed in python code rather than here if possible.
-    command: bash -c "sleep ${DJANGO_DELAY:-3} && python manage.py migrate && python manage.py createsuperuser --noinput && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "sleep ${DJANGO_DELAY:-3}; python manage.py migrate; python manage.py createsuperuser --noinput; python manage.py runserver 0.0.0.0:8000";
     volumes:
       - type: bind
         source: ./django
