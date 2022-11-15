@@ -125,7 +125,7 @@ class BookableItemSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = BookableItem
-        fieds = [
+        fields = [
             "url",
             "id",
             "user",
