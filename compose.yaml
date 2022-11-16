@@ -1,6 +1,11 @@
 services:
   db:
     image: postgres:15
+    volumes:
+      - type: volume
+        source: db_data
+        target: /var/lib/postgresql/data
+
     restart: always
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
@@ -39,3 +44,6 @@ services:
       DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD:-admin}
     ports:
       - 8000:8000
+
+volumes:
+  db_data:
