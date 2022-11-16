@@ -1,0 +1,83 @@
+.App {
+  text-align: center;
+}
+
+.logo {
+  animation: logo-spin infinite 20s linear;
+  height: 40vmin;
+  pointer-events: none;
+}
+
+.header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.link {
+  color: #b318f0;
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.topbar {
+  background-color: cornflowerblue;
+  height: 50px;
+  width: 100%;
+  display: flex;
+  color: 'black';
+  align-self: 'top';
+  justify-content: center;
+}
+
+.theatre {
+  background-color: rgb(243, 244, 247);
+  min-height: 400px;
+  max-height: 600px;
+  min-width: 600px;
+  margin: 100px;
+  margin-top: 20px;
+  /* display: flex; */
+  border-width: 2px;
+  border-color:gold;
+  /* align-self: center; */
+  /* justify-self: center; */
+  /* justify-content: space-evenly; */
+  /* align-items: stretch; */
+  color: 'black';
+}
+
+.seatContainer {
+  display: flex;
+  justify-self: center;
+  align-items: center;
+}
+
+.seat {
+  color: 'black';
+  height: 50px;
+  width: 50px;
+  /* background-color: rgb(172, 172, 6); */
+  margin: 20px; 
+}
+
+.bookButton {
+  height: 50px;
+  width: 300px;
+  background-color: lightslategrey;
+  margin-top: 30px;
+  font-weight: bolder;
+  font-size: large;
+}
