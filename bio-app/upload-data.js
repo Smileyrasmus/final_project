@@ -3,18 +3,39 @@ const axios = require('axios');
 
 const config = {
   headers: {
-    Authorization: "Token 741149ee55478c463eff3248d9c9a0389c38a82b"
+    Authorization: "Token ca87b84d81f0af7416910d3d605203ca38a8f983"
   }
 }
 
-const data = {
+const location = {name: "Sal 1"}
 
+const bookableitems = [
+  {
+    location: location,
+    active: true,
+    name: "Kakao?"
+  }
+
+
+
+]
+
+function postLocation(data) {
+  axios
+  .post('http://localhost:8000/locations/', data, config)
+  .then((res) => {
+    console.log(res.data),
+    console.log(res.status)
+  })
+  .catch((err) => { 
+    console.log(err) 
+  });
 }
 
 // axios post request
-function post1() {
+function postBookableItem(data) {
   axios
-  .post('http://localhost:3000/api/upload', data)
+  .post('http://localhost:8000/bookableitems/', data, config)
   .then((res) => {
     console.log(res.data),
     console.log(res.status)
@@ -35,6 +56,12 @@ function get1() {
   .catch(error => {
     console.error(error)
   })
+}
+
+postLocation(location)
+
+for (const data of bookableitems) {
+  postBookableItem(data)
 }
 
 get1()
