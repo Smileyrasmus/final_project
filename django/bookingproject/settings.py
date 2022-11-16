@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "bookingapi",
+    "alternativebookingapi",
     "dry_rest_permissions",
 ]
 
