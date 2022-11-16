@@ -47,6 +47,7 @@ class LocationViewSet(BaseViewSet):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
     permission_classes = [IsAuthenticated, IsOwner]
+    filterset_fields = ["name"]
 
 
 class BookableItemViewSet(BaseViewSet):
