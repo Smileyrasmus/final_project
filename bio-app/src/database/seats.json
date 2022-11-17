@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "Sæde 1",
+    "theatreId": 1
+  },
+  {
+    "id": 2,
+    "name": "Sæde 2",
+    "theatreId": 1
+  },
+  {
+    "id": 3,
+    "name": "Sæde 3",
+    "theatreId": 1
+  },
+  {
+    "id": 4,
+    "name": "Sæde 4",
+    "theatreId": 1
+  },
+  {
+    "id": 5,
+    "name": "Sæde 5",
+    "theatreId": 1
+  },
+  {
+    "id": 7,
+    "name": "Sæde 7",
+    "theatreId": 1
+  },
+  {
+    "id": 8,
+    "name": "Sæde 8",
+    "theatreId": 1
+  },
+  {
+    "id": 6,
+    "name": "Sæde 6",
+    "theatreId": 1
+  },
+  {
+    "id": 9,
+    "name": "Sæde 9",
+    "theatreId": 1
+  }
+]

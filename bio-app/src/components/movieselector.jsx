@@ -1,13 +1,8 @@
 // import styles from "../App.module.css";
 import { For, createSignal } from "solid-js";
+import movies from "../database/movieshowing.json";
 
 function MovieSelector(props) {
-  const [movies, setMovies] = createSignal([
-    { name: "The Dark Knight Rises" },
-    { name: "Endgame" },
-    { name: "Otto er et næsehorn" },
-  ]);
-
   return (
     <div>
       <label>Film</label>
@@ -19,7 +14,7 @@ function MovieSelector(props) {
           console.log(e.target.value);
         }}
       >
-        <For each={movies()}>{(movie) => <option>{movie.name}</option>}</For>
+        <For each={movies}>{(movie) => <option>{movie.name}</option>}</For>
       </select>
     </div>
   );

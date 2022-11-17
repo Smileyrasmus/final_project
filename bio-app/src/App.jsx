@@ -5,8 +5,11 @@ import Theatre from "./components/theatre";
 import BookButton from "./components/bookbutton";
 import MovieSelector from "./components/movieselector";
 import { createSignal } from "solid-js";
+import sync from "./logic/syncdata";
 
 function App() {
+  sync();
+
   const [selectedMovie, setSelectedMovie] = createSignal();
 
   return (
