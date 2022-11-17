@@ -3,6 +3,18 @@ from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 
 
+class BaseSerializer(serializers.ModelSerializer):
+    created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    updated_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    user = serializers.ReadOnlyField(source="created_by.username")
+    user_link = serializers.HyperlinkedRelatedField(
+        view_name="user-detail", read_only=True, source="created_by"
+    )
+
+    class Meta:
+        abstract = True
+
+
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
@@ -15,124 +27,79 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         fields = ["url", "name"]
 
 
-class OrderSerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.ReadOnlyField(source="created_by.username")
-    user_link = serializers.HyperlinkedRelatedField(
-        view_name="user-detail", read_only=True, source="created_by"
-    )
-    event_link = serializers.HyperlinkedRelatedField(
-        view_name="event-detail", read_only=True
-    )
-
+class OrderSerializer(BaseSerializer):
     class Meta:
         model = Order
         fields = [
             "url",
             "id",
             "user",
+            "created_by",
             "user_link",
-            "event_link",
             "note",
+            "bookings",
         ]
+        read_only_fields = ["booking"]
 
 
-class EventSerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.ReadOnlyField(source="created_by.username")
-    user_link = serializers.HyperlinkedRelatedField(
-        view_name="user-detail", read_only=True, source="created_by"
-    )
-    location_links = serializers.HyperlinkedRelatedField(
-        many=True, read_only=True, view_name="location-detail"
-    )
-
-    class Meta:
-        model = Event
-        fields = [
-            "url",
-            "id",
-            "user",
-            "user_link",
-            "name",
-            "description",
-            "locations",
-            "location_links",
-            "start_time",
-            "end_time",
-        ]
-
-
-class BookingSerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.ReadOnlyField(source="created_by.username")
-    user_link = serializers.HyperlinkedRelatedField(
-        view_name="user-detail", read_only=True, source="created_by"
-    )
-    event_link = serializers.HyperlinkedRelatedField(
-        view_name="event-detail", read_only=True
-    )
-    order_link = serializers.HyperlinkedRelatedField(
-        view_name="order-detail", read_only=True
-    )
-
+class BookingSerializer(BaseSerializer):
     class Meta:
         model = Booking
         fields = [
             "url",
             "id",
+            "created_by",
             "user",
             "user_link",
             "order",
-            "order_link",
             "event",
-            "event_link",
+            "bookable_item",
         ]
 
 
-class LocationSerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.ReadOnlyField(source="created_by.username")
-    user_link = serializers.HyperlinkedRelatedField(
-        view_name="user-detail", read_only=True, source="created_by"
-    )
-    bookable_item_link = serializers.HyperlinkedRelatedField(
-        view_name="bookableitem-detail", read_only=True
-    )
-    event_links = serializers.HyperlinkedRelatedField(
-        many=True, read_only=True, view_name="event-detail"
-    )
+class EventSerializer(BaseSerializer):
+    class Meta:
+        model = Event
+        fields = [
+            "url",
+            "id",
+            "created_by",
+            "user",
+            "user_link",
+            "name",
+            "description",
+            "locations",
+            "start_time",
+            "end_time",
+        ]
 
+
+class LocationSerializer(BaseSerializer):
     class Meta:
         model = Location
         fields = [
             "url",
             "id",
             "user",
+            "created_by",
             "user_link",
             "name",
             "description",
-            "bookable_item_link",
             "events",
-            "event_links",
         ]
 
 
-class BookableItemSerializer(serializers.HyperlinkedModelSerializer):
-    user = serializers.ReadOnlyField(source="created_by.username")
-    user_link = serializers.HyperlinkedRelatedField(
-        view_name="user-detail", read_only=True, source="created_by"
-    )
-    location_link = serializers.HyperlinkedRelatedField(
-        view_name="location-detail", read_only=True
-    )
-
+class BookableItemSerializer(BaseSerializer):
     class Meta:
         model = BookableItem
         fields = [
             "url",
             "id",
             "user",
+            "created_by",
             "user_link",
             "name",
             "description",
             "active",
             "location",
-            "location_link",
         ]
