@@ -1,68 +1,52 @@
+const axios = require("axios");
 
-const axios = require('axios');
+const domain = "http://localhost:8000";
 
 const config = {
   headers: {
-    Authorization: "Token ca87b84d81f0af7416910d3d605203ca38a8f983"
+    Authorization: "Token 741149ee55478c463eff3248d9c9a0389c38a82b",
+  },
+};
+
+function formatUri(uri) {
+  uri = uri.toLocaleLowerCase();
+  if (uri.charAt(0) != "/") uri = "/" + uri;
+  if (uri.charAt(uri.length - 1) != "/") uri += "/";
+  return uri;
+}
+
+async function post(uri, data) {
+  uri = formatUri(uri);
+  const res = await axios.post(domain + uri, data, config);
+  console.log(res.data);
+  return res.data;
+}
+
+async function get(uri) {
+  uri = formatUri(uri);
+  const res = await axios.get(domain + uri, config);
+  console.log(res.data);
+  return res.data;
+}
+
+function getBookableitems(location) {
+  let bookableitems = [];
+  for (let i = 0; i < 10; i++) {
+    bookableitems.push({
+      name: `${i} - ${location.name}`,
+      location: location.url,
+    });
+  }
+  return bookableitems;
+}
+
+async function doStuff() {
+  let location = { name: "Sal 1" };
+  location = await post("locations", location);
+
+  for (const data of getBookableitems(location)) {
+    post("BOOkableITems", data);
   }
 }
 
-const location = {name: "Sal 1"}
-
-const bookableitems = [
-  {
-    location: location,
-    active: true,
-    name: "Kakao?"
-  }
-
-
-
-]
-
-function postLocation(data) {
-  axios
-  .post('http://localhost:8000/locations/', data, config)
-  .then((res) => {
-    console.log(res.data),
-    console.log(res.status)
-  })
-  .catch((err) => { 
-    console.log(err) 
-  });
-}
-
-// axios post request
-function postBookableItem(data) {
-  axios
-  .post('http://localhost:8000/bookableitems/', data, config)
-  .then((res) => {
-    console.log(res.data),
-    console.log(res.status)
-  })
-  .catch((err) => { 
-    console.log(err) 
-  });
-}
-
-// axios get request
-function get1() {
-  axios
-  .get('http://localhost:8000/bookableitems', config)
-  .then(res => {
-    console.log(`statusCode: ${res.statusCode}`)
-    console.log(res.data)
-  }) 
-  .catch(error => {
-    console.error(error)
-  })
-}
-
-postLocation(location)
-
-for (const data of bookableitems) {
-  postBookableItem(data)
-}
-
-get1()
-
+doStuff();
