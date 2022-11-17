@@ -39,7 +39,7 @@ class OrderSerializer(BaseSerializer):
             "note",
             "bookings",
         ]
-        read_only_fields = ["booking"]
+        read_only_fields = ["bookings"]
 
 
 class BookingSerializer(BaseSerializer):
