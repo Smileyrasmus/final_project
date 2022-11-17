@@ -4,7 +4,7 @@ import Topbar from "./components/topbar";
 import Theatre from "./components/theatre";
 import BookButton from "./components/bookbutton";
 import MovieSelector from "./components/movieselector";
-import { createEffect, createSignal } from "solid-js";
+import { createSignal } from "solid-js";
 
 function App() {
   const [selectedMovie, setSelectedMovie] = createSignal();
@@ -13,7 +13,7 @@ function App() {
     <div class={styles.App}>
       <Topbar />
       <MovieSelector setSelectedMovie={setSelectedMovie} />
-      <Theatre />
+      <Theatre seatCount={10} />
       <BookButton value={selectedMovie} />
     </div>
 

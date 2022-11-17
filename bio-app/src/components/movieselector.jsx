@@ -1,5 +1,5 @@
-import styles from "../App.module.css";
-import { For, createSignal, createEffect } from "solid-js";
+// import styles from "../App.module.css";
+import { For, createSignal } from "solid-js";
 
 function MovieSelector(props) {
   const [movies, setMovies] = createSignal([
@@ -7,9 +7,6 @@ function MovieSelector(props) {
     { name: "Endgame" },
     { name: "Otto er et næsehorn" },
   ]);
-  //   createEffect(() =>
-  //     console.log()
-  //   );
 
   return (
     <div>
@@ -19,7 +16,7 @@ function MovieSelector(props) {
         value={movies.name}
         onChange={(e) => {
           props.setSelectedMovie(e.target.value);
-          console.log(/*e.target.value*/ "test fra movieselectorfunction");
+          console.log(e.target.value);
         }}
       >
         <For each={movies()}>{(movie) => <option>{movie.name}</option>}</For>
