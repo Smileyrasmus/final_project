@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from .permissions import IsOwner
 from rest_framework.response import Response
 from django.db.models import F
+from django.db import transaction
 
 from django.contrib.auth.models import Group, User
 
@@ -62,9 +63,7 @@ class OrderViewSet(BaseViewSet):
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated, IsOwner]
 
-    def get_queryset(self):
-        return super().get_queryset()
-
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         if not request.data.get("bookings"):
             return Response(
