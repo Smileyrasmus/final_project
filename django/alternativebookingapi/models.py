@@ -42,11 +42,6 @@ class Event(BaseModel):
         super().save(*args, **kwargs)
 
 
-class Booking(BaseModel):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="bookings")
-    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="bookings")
-
-
 class Location(BaseModel):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
@@ -69,3 +64,15 @@ class BookableItem(BaseModel):
                 violation_error_message="Item already attributed for this location",
             )
         ]
+
+
+class Booking(BaseModel):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="bookings")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="bookings")
+    bookable_item = models.ForeignKey(
+        BookableItem,
+        on_delete=models.CASCADE,
+        related_name="bookings",
+        null=True,
+        blank=True,
+    )

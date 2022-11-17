@@ -1,19 +1,15 @@
 from .serializers import *
 from .models import *
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsOwner
+from rest_framework.response import Response
+from django.db.models import F
 
 from django.contrib.auth.models import Group, User
 
 
 class BaseViewSet(viewsets.ModelViewSet):
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
-
-    def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
-
     def get_queryset(self):
         if self.request.user.is_superuser:
             return self.queryset.all()
@@ -67,8 +63,22 @@ class OrderViewSet(BaseViewSet):
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated, IsOwner]
 
+    def get_queryset(self):
+        return super().get_queryset()
 
-class BookingViewSet(BaseViewSet):
-    queryset = Booking.objects.all()
-    serializer_class = BookingSerializer
-    permission_classes = [IsAuthenticated, IsOwner]
+    def create(self, request, *args, **kwargs):
+        if not request.data.get("bookings"):
+            return Response(
+                {"bookings": "This field is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        serializer = self.get_serializer(data=request.data["order"])
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        for booking in request.data["bookings"]:
+            booking["order"] = instance.id
+            self.serializer_class = BookingSerializer
+            booking_serializer = self.get_serializer(data=booking)
+            booking_serializer.is_valid(raise_exception=True)
+            booking_serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
