@@ -1,9 +1,11 @@
 from django.conf import settings
 from django.db import models
 from django.core.exceptions import ValidationError
+import uuid
 
 
 class BaseModel(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(
@@ -24,6 +26,7 @@ class BaseModel(models.Model):
 
 
 class Order(BaseModel):
+    customer_id = models.CharField(max_length=255, null=True, blank=True)
     note = models.CharField(max_length=255, blank=True, null=True)
 
 

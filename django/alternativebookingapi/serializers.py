@@ -28,6 +28,20 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class OrderSerializer(BaseSerializer):
+    booking = serializers.SerializerMethodField()
+
+    def get_booking(self, obj):
+        return {
+            "bookings": obj.bookings.all().values(
+                "id",
+                "bookable_item__name",
+                "event__name",
+                "event__start_time",
+                "event__end_time",
+                "bookable_item__location__name",
+            ),
+        }
+
     class Meta:
         model = Order
         fields = [
@@ -36,8 +50,9 @@ class OrderSerializer(BaseSerializer):
             "user",
             "created_by",
             "user_link",
+            "customer_id",
             "note",
-            "bookings",
+            "booking",
         ]
         read_only_fields = ["bookings"]
 
