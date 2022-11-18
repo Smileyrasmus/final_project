@@ -68,6 +68,7 @@ class EventViewSet(BaseViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     permission_classes = [IsAuthenticated, IsOwner]
+    filterset_fields = ["name", "start_time", "end_time"]
 
 
 class OrderViewSet(BaseViewSet):

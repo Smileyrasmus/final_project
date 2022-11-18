@@ -2,9 +2,14 @@ import axios from "axios";
 
 export default class BookingClient {
   constructor(domain) {
+    // to lower case and removes trailing '/'
+    domain = domain.toLocaleLowerCase();
+    if (domain.charAt(domain.length - 1) != "/") domain.slice(0, -1);
+
     this.domain = domain;
     this.config = {
       headers: {},
+      params: {},
     };
   }
 
@@ -26,14 +31,29 @@ export default class BookingClient {
 
   async postAsync(uri, data) {
     uri = this.formatUri(uri);
-    const res = await axios.post(this.domain + uri, data, this.config);
-    console.log(res.data);
-    return res.data;
+    let responseData;
+    try {
+      const res = await axios.post(this.domain + uri, data, this.config);
+      responseData = res.data;
+    } catch (err) {
+      console.log(err);
+    }
+    return responseData;
   }
 
-  async getAsync(uri, params) {
+  async getAsync(uri, params = null) {
     uri = this.formatUri(uri);
-    const res = await axios.get(this.domain + uri, this.config, { params });
+
+    if (params) {
+      this.config.params = params;
+    }
+
+    const res = await axios.get(this.domain + uri, this.config);
+
+    if (this.config.params) {
+      this.config.params = {};
+    }
+
     console.log(res.data);
     return res.data;
   }
