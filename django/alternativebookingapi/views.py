@@ -8,6 +8,11 @@ from django.db.models import F
 
 from django.contrib.auth.models import Group, User
 
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
+
 
 class BaseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
@@ -27,6 +32,11 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by("-date_joined")
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+
+    @receiver(post_save, sender=settings.AUTH_USER_MODEL)
+    def create_auth_token(sender, instance=None, created=False, **kwargs):
+        if created:
+            Token.objects.create(user=instance)
 
 
 class GroupViewSet(viewsets.ModelViewSet):

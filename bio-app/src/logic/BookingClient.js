@@ -1,9 +1,20 @@
 import axios from "axios";
 
 export default class BookingClient {
-  constructor(domain, config = null) {
+  constructor(domain) {
     this.domain = domain;
-    this.config = config;
+    this.config = {
+      headers: {},
+    };
+  }
+
+  async authenticate(username, password) {
+    const response = await this.postAsync("api-token-auth", {
+      username: username,
+      password: password,
+    });
+    const token = response.token;
+    this.config.headers.Authorization = `Token ${token}`;
   }
 
   formatUri(uri) {

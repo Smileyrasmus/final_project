@@ -22,14 +22,8 @@ async function syncLocations(client) {
 }
 
 export default async function sync() {
-  const config = {
-    headers: {
-      //Authorization: "Token 741149ee55478c463eff3248d9c9a0389c38a82b", /*REBL*/
-      Authorization: "Token ca87b84d81f0af7416910d3d605203ca38a8f983", /*MBJ*/
-    },
-  };
-
-  const client = new BookingClient("http://localhost:8000", config);
+  const client = new BookingClient("http://localhost:8000");
+  await client.authenticate("admin", "admin");
 
   let theatreApiIds = await syncLocations(client);
 }
