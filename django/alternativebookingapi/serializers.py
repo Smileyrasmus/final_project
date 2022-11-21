@@ -1,6 +1,9 @@
 from .models import Order, Event, Booking, Location, BookableItem
-from django.contrib.auth.models import User, Group
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 
 class BaseSerializer(serializers.ModelSerializer):
@@ -13,18 +16,6 @@ class BaseSerializer(serializers.ModelSerializer):
 
     class Meta:
         abstract = True
-
-
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ["url", "username", "email", "groups"]
-
-
-class GroupSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Group
-        fields = ["url", "name"]
 
 
 class OrderSerializer(BaseSerializer):
