@@ -16,7 +16,6 @@ def default_conditions():
 
 class CustomUser(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    # add additional fields in here
     conditions = models.JSONField(
         db_index=True,
         default=default_conditions,

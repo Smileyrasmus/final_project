@@ -37,6 +37,8 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
     ],
 }
 
@@ -54,6 +56,7 @@ INSTALLED_APPS = [
     "alternativebookingapi",
     "accounts",
     "dry_rest_permissions",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -64,7 +67,14 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+CORS_ALLOWED_ALL_ORIGINS = True
 
 ROOT_URLCONF = "bookingproject.urls"
 
