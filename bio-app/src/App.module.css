@@ -37,40 +37,35 @@
   height: 50px;
   width: 100%;
   display: flex;
-  color: 'black';
-  align-self: 'top';
+  color: "black";
+  align-self: "top";
   justify-content: center;
 }
 
 .theatre {
-  background-color: rgb(243, 244, 247);
-  min-height: 400px;
-  max-height: 600px;
-  min-width: 600px;
-  margin: 100px;
-  margin-top: 20px;
-  /* display: flex; */
-  border-width: 2px;
-  border-color:gold;
-  /* align-self: center; */
-  /* justify-self: center; */
-  /* justify-content: space-evenly; */
-  /* align-items: stretch; */
-  color: 'black';
+  background-color: rgb(224, 224, 224);
+  margin: 20px;
+  padding: 20px;
+  padding-top: 10px;
+}
+
+.theatre > h3 {
+  margin: 0;
+  margin-bottom: 15px;
 }
 
 .seatContainer {
-  display: flex;
-  justify-self: center;
-  align-items: center;
+  display: grid;
+  justify-content: center;
+  grid-template-columns: repeat(10, auto);
+  gap: 10px;
 }
 
 .seat {
-  color: 'black';
+  color: "black";
   height: 50px;
   width: 50px;
   /* background-color: rgb(172, 172, 6); */
-  margin: 20px; 
 }
 
 .bookButton {
