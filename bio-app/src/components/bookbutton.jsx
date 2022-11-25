@@ -6,12 +6,14 @@ function BookButton(props) {
   const [selectedSeats, setSelectedSeats] = createSignal([]);
   const [isDisabled, setIsDisabled] = createSignal(true);
 
+  // bundle together the selected seats for easy use
   createEffect(() => {
     const seats = props.state?.seats;
     if (seats)
       setSelectedSeats(seats.filter((seat) => seat?.state == "selected"));
   });
 
+  // disable the button ig no seats are selected
   createEffect(() => {
     setIsDisabled(selectedSeats().length === 0);
   });

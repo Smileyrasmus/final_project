@@ -22,17 +22,6 @@ function Theatre(props) {
         <For each={props.state.seats}>
           {(seat) => <Seat data={seat} updateSeatState={setSeat} />}
         </For>
-        {/* <Seat id={1} />
-                <Seat id={2} disabled={"true"} />
-                <Seat id={3} />
-                <Seat id={4} />
-                <Seat id={5} />
-                <Seat id={6} />
-                <Seat id={7} />
-                <Seat id={8} />
-                <Seat id={9} />
-                <Seat id={10} />            
-                <Seat id={'terms apply'}/> */}
       </div>
     </div>
   );
