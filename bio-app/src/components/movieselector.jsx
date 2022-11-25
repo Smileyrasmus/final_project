@@ -10,7 +10,7 @@ function MovieSelector(props) {
         id="movieSelector"
         value={movies.name}
         onChange={(e) => {
-          props.setSelectedMovie(e.target.value);
+          props.setState("selectedMovie", e.target.value);
           console.log(e.target.value);
         }}
       >

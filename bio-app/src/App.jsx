@@ -10,7 +10,6 @@ import appSetup from "./logic/AppSetup";
 
 function App() {
   const [state, setState] = createStore({});
-  const [selectedMovie, setSelectedMovie] = createSignal();
 
   appSetup(setState);
 
@@ -21,9 +20,9 @@ function App() {
   return (
     <div class={styles.App}>
       <Topbar />
-      <MovieSelector setSelectedMovie={setSelectedMovie} />
-      <Theatre data={state} setData={setState} />
-      <BookButton value={selectedMovie} />
+      <MovieSelector setState={setState} />
+      <Theatre state={state} setState={setState} />
+      <BookButton state={state} setState={setState} />
     </div>
 
     // <div class={styles.App}>

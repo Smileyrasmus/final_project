@@ -5,7 +5,7 @@ import Seat from "./seat";
 
 function Theatre(props) {
   function setSeat(id, newSeat) {
-    props.setData(
+    props.setState(
       produce((t) => {
         const newList = [...t.seats]; // shorthand for copying a list
         let oldSeatIndex = newList.findIndex((s) => s.id === id); // find index of the old value
@@ -19,7 +19,7 @@ function Theatre(props) {
     <div class={styles.theatre}>
       <h3>Sæder i salen</h3>
       <div class={styles.seatContainer}>
-        <For each={props.data.seats}>
+        <For each={props.state.seats}>
           {(seat) => <Seat data={seat} updateSeatState={setSeat} />}
         </For>
         {/* <Seat id={1} />
