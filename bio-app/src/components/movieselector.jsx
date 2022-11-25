@@ -1,6 +1,5 @@
 // import styles from "../App.module.css";
-import { For, createSignal } from "solid-js";
-import movies from "../database/movieshowing.json";
+import { For } from "solid-js";
 
 function MovieSelector(props) {
   return (
@@ -8,13 +7,14 @@ function MovieSelector(props) {
       <label>Film</label>
       <select
         id="movieSelector"
-        value={movies.name}
         onChange={(e) => {
           props.setState("selectedMovie", e.target.value);
           console.log(e.target.value);
         }}
       >
-        <For each={movies}>{(movie) => <option>{movie.name}</option>}</For>
+        <For each={props.state.movieShowings}>
+          {(movie) => <option>{movie.name}</option>}
+        </For>
       </select>
     </div>
   );

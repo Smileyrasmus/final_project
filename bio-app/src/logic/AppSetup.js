@@ -11,6 +11,8 @@ function createState(setState) {
     seats: seats
       .filter((seat) => seat.theatreId === 1)
       .sort((a, b) => a.id - b.id),
+    // only add movie showings for theater with id 1
+    movieShowings: movieShowings.filter((showing) => showing.theatreId === 1),
   };
   setState(state);
 }
