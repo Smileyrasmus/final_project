@@ -5,17 +5,10 @@ import Theatre from "./components/theatre";
 import BookButton from "./components/bookbutton";
 import MovieSelector from "./components/movieselector";
 import { createSignal } from "solid-js";
-import SyncService from "./logic/syncdata";
-
-import theatres from "./database/theatres.json";
-import movieShowings from "./database/movieshowing.json";
-import seats from "./database/seats.json";
+import appSetup from "./logic/AppSetup";
 
 function App() {
-  const syncService = new SyncService();
-  syncService
-    .init()
-    .then(() => syncService.syncEverything(theatres, movieShowings, seats));
+  appSetup();
 
   const [selectedMovie, setSelectedMovie] = createSignal();
 
