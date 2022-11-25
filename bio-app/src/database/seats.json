@@ -43,5 +43,60 @@
     "id": 9,
     "name": "Sæde 9",
     "theatreId": 1
+  },
+  {
+    "id": 10,
+    "name": "Sæde 10",
+    "theatreId": 1
+  },
+  {
+    "id": 11,
+    "name": "Sæde 11",
+    "theatreId": 1
+  },
+  {
+    "id": 12,
+    "name": "Sæde 12",
+    "theatreId": 1
+  },
+  {
+    "id": 13,
+    "name": "Sæde 13",
+    "theatreId": 1
+  },
+  {
+    "id": 14,
+    "name": "Sæde 14",
+    "theatreId": 1
+  },
+  {
+    "id": 15,
+    "name": "Sæde 15",
+    "theatreId": 1
+  },
+  {
+    "id": 17,
+    "name": "Sæde 17",
+    "theatreId": 1
+  },
+  {
+    "id": 18,
+    "name": "Sæde 18",
+    "theatreId": 1
+  },
+  {
+    "id": 16,
+    "name": "Sæde 16",
+    "theatreId": 1
+  },
+  {
+    "id": 19,
+    "name": "Sæde 19",
+    "theatreId": 1
+  },
+  {
+    "id": 20,
+    "name": "Sæde 20",
+    "theatreId": 1
   }
 ]

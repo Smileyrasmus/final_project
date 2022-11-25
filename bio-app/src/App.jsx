@@ -4,19 +4,25 @@ import Topbar from "./components/topbar";
 import Theatre from "./components/theatre";
 import BookButton from "./components/bookbutton";
 import MovieSelector from "./components/movieselector";
-import { createSignal } from "solid-js";
+import { createEffect, createSignal } from "solid-js";
+import { createStore } from "solid-js/store";
 import appSetup from "./logic/AppSetup";
 
 function App() {
-  appSetup();
-
+  const [state, setState] = createStore({});
   const [selectedMovie, setSelectedMovie] = createSignal();
+
+  appSetup(setState);
+
+  createEffect(() => {
+    console.log(state.seats);
+  });
 
   return (
     <div class={styles.App}>
       <Topbar />
       <MovieSelector setSelectedMovie={setSelectedMovie} />
-      <Theatre seatCount={10} />
+      <Theatre data={state} setData={setState} />
       <BookButton value={selectedMovie} />
     </div>
 

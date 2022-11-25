@@ -1,23 +1,27 @@
-import { For, createSignal } from "solid-js";
+import { For } from "solid-js";
+import { produce } from "solid-js/store";
 import styles from "../App.module.css";
 import Seat from "./seat";
 
-function Theatre(prop) {
-  function seatRender(int) {
-    let list = [];
-    for (let i = 0; i < int; i++) {
-      list.push(i + 1);
-    }
-    return list;
+function Theatre(props) {
+  function setSeat(id, newSeat) {
+    props.setData(
+      produce((t) => {
+        const newList = [...t.seats]; // shorthand for copying a list
+        let oldSeatIndex = newList.findIndex((s) => s.id === id); // find index of the old value
+        newList[oldSeatIndex] = newSeat; // override the seat at index of the old value
+        t.seats = newList;
+      })
+    );
   }
-
-  const [seats, setSeats] = createSignal(seatRender(prop.seatCount));
 
   return (
     <div class={styles.theatre}>
       <h3>Sæder i salen</h3>
       <div class={styles.seatContainer}>
-        <For each={seats()}>{(id) => <Seat id={id} />}</For>
+        <For each={props.data.seats}>
+          {(seat) => <Seat data={seat} updateSeatState={setSeat} />}
+        </For>
         {/* <Seat id={1} />
                 <Seat id={2} disabled={"true"} />
                 <Seat id={3} />
