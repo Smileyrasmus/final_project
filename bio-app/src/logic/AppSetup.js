@@ -2,8 +2,9 @@ import SyncService from "./syncdata";
 import theatres from "../database/theatres.json";
 import movieShowings from "../database/movieshowing.json";
 import seats from "../database/seats.json";
+import BookingClient from "../logic/BookingClient";
 
-function createState(setState) {
+function createState(client, setState) {
   const state = {
     // chooses theatre with id of 1 from the "database", and unpacks it's attributes(the ... operater).
     ...theatres.filter((theatre) => theatre.id === 1),
@@ -13,18 +14,20 @@ function createState(setState) {
       .sort((a, b) => a.id - b.id),
     // only add movie showings for theater with id 1
     movieShowings: movieShowings.filter((showing) => showing.theatreId === 1),
+    client: client,
   };
   setState(state);
 }
 
-export default function appSetup(setState) {
-  const syncService = new SyncService();
-  syncService
-    .init() // get auth token
-    .then(
-      () =>
-        syncService
-          .syncEverything(theatres, movieShowings, seats) // sync data objects
-          .then(() => createState(setState)) // use the data objects to the state
-    );
+export default async function appSetup(setState) {
+  // create the booking api client
+  const client = new BookingClient("http://localhost:8000");
+  await client.authenticate("admin", "admin");
+
+  // create the sync service to syncronize state objects with the booking api database
+  const syncService = new SyncService(client);
+  await syncService.syncEverything(theatres, movieShowings, seats); // sync data objects
+
+  // create the default state of the app
+  createState(client, setState);
 }

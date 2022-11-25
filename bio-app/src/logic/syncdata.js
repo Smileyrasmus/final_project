@@ -1,16 +1,6 @@
-import theatres from "../database/theatres.json";
-import movieShowings from "../database/movieshowing.json";
-import seats from "../database/seats.json";
-import BookingClient from "./BookingClient";
-
 export default class SyncService {
-  constructor() {
-    this.client = null;
-  }
-
-  async init() {
-    this.client = new BookingClient("http://localhost:8000");
-    await this.client.authenticate("admin", "admin");
+  constructor(client) {
+    this.client = client;
   }
 
   async syncEverything(theatres, movieShowings, seats) {
