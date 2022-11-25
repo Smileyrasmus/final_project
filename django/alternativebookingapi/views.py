@@ -62,6 +62,7 @@ class BookableItemViewSet(BaseViewSet):
     queryset = BookableItem.objects.all()
     serializer_class = BookableItemSerializer
     permission_classes = [IsAuthenticated, IsOwner]
+    filterset_fields = ["name", "location"]
 
 
 class EventViewSet(BaseViewSet):

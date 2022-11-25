@@ -13,7 +13,9 @@ import seats from "./database/seats.json";
 
 function App() {
   const syncService = new SyncService();
-  syncService.init(theatres, movieShowings);
+  syncService
+    .init()
+    .then(() => syncService.syncEverything(theatres, movieShowings, seats));
 
   const [selectedMovie, setSelectedMovie] = createSignal();
 

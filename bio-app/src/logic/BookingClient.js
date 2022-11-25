@@ -53,8 +53,6 @@ export default class BookingClient {
     if (this.config.params) {
       this.config.params = {};
     }
-
-    console.log(res.data);
     return res.data;
   }
 }
