@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.db import models
-from django.core.exceptions import ValidationError
 import uuid
 
 
@@ -36,14 +35,6 @@ class Event(BaseModel):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
 
-    def clean(self):
-        if self.start_time >= self.end_time:
-            raise ValidationError("Start time must be before end time")
-
-    def save(self, *args, **kwargs):
-        self.full_clean()
-        super().save(*args, **kwargs)
-
 
 class Location(BaseModel):
     name = models.CharField(max_length=255)
@@ -58,15 +49,6 @@ class BookableItem(BaseModel):
     location = models.ForeignKey(
         Location, on_delete=models.CASCADE, related_name="seats", null=True, blank=True
     )
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["name", "location"],
-                name="unique_item_name_for_location",
-                violation_error_message="Item already attributed for this location",
-            )
-        ]
 
 
 class Booking(BaseModel):
