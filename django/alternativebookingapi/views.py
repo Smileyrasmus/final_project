@@ -10,6 +10,16 @@ from django.db import transaction
 from django.contrib.auth.models import Group, User
 
 
+class BaseReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return self.queryset.all()
+        return self.queryset.filter(created_by=self.request.user)
+
+    class Meta:
+        abstract = True
+
+
 class BaseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.user.is_superuser:
@@ -39,6 +49,13 @@ class EventViewSet(BaseViewSet):
     serializer_class = EventSerializer
     permission_classes = [IsAuthenticated, IsOwner]
     filterset_fields = ["name", "start_time", "end_time"]
+
+
+class BookingViewSet(BaseReadOnlyViewSet):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
+    filterset_fields = ["event"]
 
 
 class OrderViewSet(BaseViewSet):
