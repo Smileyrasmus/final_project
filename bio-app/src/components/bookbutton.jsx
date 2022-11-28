@@ -13,14 +13,24 @@ function BookButton(props) {
       setSelectedSeats(seats.filter((seat) => seat?.state == "selected"));
   });
 
-  // disable the button ig no seats are selected
+  // disable the button if no seats are selected
   createEffect(() => {
     setIsDisabled(selectedSeats().length === 0);
   });
 
-  function clickedBook() {
+  function alertTheBooking() {
+    const selectedSeatNames = selectedSeats().map((s) => {
+      return s.name;
+    }); // Make an array only containing the names of the seats, rather than an array of the whole seat object
+    return confirm(
+      `Billetter til sæder "${selectedSeatNames}" til filmen "${props.state.selectedMovie.name}" gøres klar til at sende afsted med brevdue.`
+    );
+  }
+
+  function doTheBooking() {
     props.setState(
-      // for createEffect to take effect you need to change the reference pointer. That's way the code is wierd.
+      // for createEffect to take effect you need to change the reference pointer.
+      // That's why we recreate a new list and seats.
       produce((s) => {
         const newList = [...s.seats];
         for (let selectedSeat of selectedSeats()) {
@@ -33,14 +43,18 @@ function BookButton(props) {
         s.seats = newList;
       })
     );
+  }
 
-    const selectedSeatNames = selectedSeats().map((s) => {
-      return s.name;
-    }); // Make an array only containing the names of the seats, rather than an array of the whole seat object
-    console.log(props.state.selectedMovie);
-    console.log(
-      `Billetter til sæder "${selectedSeatNames}" til filmen "${props.state.selectedMovie.name}" har vi sendt afsted med en brevdue.`
-    );
+  function clickedBook() {
+    // first alert the user of what is about to happen...
+    const isConfirmed = alertTheBooking();
+
+    // ...thereafter try to do it
+    if (isConfirmed) doTheBooking();
+
+    // This order is important, because doing the booking
+    // changes the state of the seats, which starts the effect to unselect the seats.
+    // Then the seats are no longer selected, and we can't print which seats where selected.
   }
 
   return (
