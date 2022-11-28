@@ -198,9 +198,12 @@ class BookableItemSerializer(BaseSerializer):
     def save(self, *args, **kwargs):
         user = self._user(self)
         name = self.context["request"].data["name"]
+        location = self.context["request"].data["location"]
         if user.conditions["bookable_item"]["dublicate_bookable_item"]:
-            if BookableItem.objects.filter(name=name, created_by=user).exists():
+            if BookableItem.objects.filter(
+                name=name, location=location, created_by=user
+            ).exists():
                 raise serializers.ValidationError(
-                    "Bookable item with this name already exists"
+                    "Bookable item on this location with this name already exists"
                 )
         super().save(*args, **kwargs)
