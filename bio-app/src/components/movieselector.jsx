@@ -11,6 +11,19 @@ function MovieSelector(props) {
     }
   });
 
+  createEffect(async () => {
+    const client = props.state?.client;
+    if (client) {
+      const occupiedSeatApiIds = [];
+      const selectedMovie = props.state?.selectedMovie;
+      // TODO: Booking Client shuold have a getAllAsync method, to flip through pages
+      const response = await client.getAsync("bookings", {
+        event: selectedMovie.apiId,
+      });
+      console.log(response);
+    }
+  });
+
   function findMovieByName(name) {
     return props.state.movieShowings.find((movie) => movie.name === name);
   }

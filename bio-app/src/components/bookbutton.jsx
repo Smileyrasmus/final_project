@@ -27,7 +27,7 @@ function BookButton(props) {
     );
   }
 
-  function doTheBooking() {
+  function changeSelectedSeatsToOccupied() {
     props.setState(
       // for createEffect to take effect you need to change the reference pointer.
       // That's why we recreate a new list and seats.
@@ -43,6 +43,11 @@ function BookButton(props) {
         s.seats = newList;
       })
     );
+  }
+
+  function doTheBooking() {
+    // TODO: actually post an order, and depending on the success, change the selected seats to occupied
+    changeSelectedSeatsToOccupied();
   }
 
   function clickedBook() {

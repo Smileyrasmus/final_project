@@ -6,7 +6,7 @@ export default class SyncService {
   async syncEverything(theatres, movieShowings, seats) {
     await this.syncTheatres(theatres);
     await this.syncMovieshowings(movieShowings, theatres[0].apiId);
-    await this.syncSeats(seats);
+    await this.syncSeats(seats, theatres[0].apiId);
   }
 
   async syncTheatres(theatres) {
