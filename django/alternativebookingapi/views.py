@@ -9,11 +9,6 @@ from django.db import transaction
 
 from django.contrib.auth.models import Group, User
 
-from django.conf import settings
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from rest_framework.authtoken.models import Token
-
 
 class BaseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
@@ -23,32 +18,6 @@ class BaseViewSet(viewsets.ModelViewSet):
 
     class Meta:
         abstract = True
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-
-    queryset = User.objects.all().order_by("-date_joined")
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-
-    # auto create token on user creation
-    @receiver(post_save, sender=settings.AUTH_USER_MODEL)
-    def create_auth_token(sender, instance=None, created=False, **kwargs):
-        if created:
-            Token.objects.create(user=instance)
-
-
-class GroupViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
-
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-    permission_classes = [IsAuthenticated]
 
 
 class LocationViewSet(BaseViewSet):
