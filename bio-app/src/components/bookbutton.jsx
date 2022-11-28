@@ -37,9 +37,9 @@ function BookButton(props) {
     const selectedSeatNames = selectedSeats().map((s) => {
       return s.name;
     }); // Make an array only containing the names of the seats, rather than an array of the whole seat object
-
+    console.log(props.state.selectedMovie);
     console.log(
-      `Billetter til sæder "${selectedSeatNames}" til filmen "${props.state.selectedMovie}" har vi sendt afsted med en brevdue.`
+      `Billetter til sæder "${selectedSeatNames}" til filmen "${props.state.selectedMovie.name}" har vi sendt afsted med en brevdue.`
     );
   }
 
