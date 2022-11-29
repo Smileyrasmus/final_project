@@ -4,6 +4,8 @@ from rest_framework import viewsets
 from django.contrib.auth.models import Group
 from .models import CustomUser
 from .serializers import UserSerializer, GroupSerializer
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 
 from rest_framework.permissions import IsAuthenticated
@@ -17,6 +19,34 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all().order_by("-date_joined")
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated]
+
+    @action(detail=False, methods=["get", "post"], url_path="account-form")
+    def account_form(self, request):
+        if request.method == "GET":
+            return render(
+                request,
+                "account_form.html",
+                {"user": request.user, "conditions": request.user.conditions},
+            )
+        if request.method == "POST":
+            for item in request.POST:
+                if item == "csrfmiddlewaretoken":
+                    continue
+                if request.POST[item] == "true":
+                    bool = True
+                if request.POST[item] == "false":
+                    bool = False
+                for key, value in request.user.conditions.items():
+                    if item in value:
+                        request.user.conditions[key][item] = bool
+                        request.user.save()
+
+            return Response(
+                {
+                    "message": "Success!",
+                    "usercond": request.user.conditions,
+                }
+            )
 
 
 class GroupViewSet(viewsets.ModelViewSet):
