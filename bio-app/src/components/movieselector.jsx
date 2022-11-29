@@ -6,7 +6,8 @@ function MovieSelector(props) {
   createEffect(() => {
     // only set movie if movieShowings is defined
     if (props.state?.movieShowings) {
-      const movie = props.state?.movieShowings[0];
+      let movie = props.state?.movieShowings[0];
+      movie = { ...movie }; // make copy of object, instead of reference
       props.setState("selectedMovie", movie);
     }
   });
@@ -24,8 +25,10 @@ function MovieSelector(props) {
     }
   });
 
-  function findMovieByName(name) {
-    return props.state.movieShowings.find((movie) => movie.name === name);
+  function changeSelectedMovieByName(name) {
+    let movie = props.state.movieShowings.find((movie) => movie.name === name);
+    movie = { ...movie }; // make copy of object, instead of reference
+    props.setState("selectedMovie", movie);
   }
 
   return (
@@ -33,9 +36,7 @@ function MovieSelector(props) {
       <label>Film</label>
       <select
         id="movieSelector"
-        onChange={(e) => {
-          props.setState("selectedMovie", findMovieByName(e.target.value));
-        }}
+        onChange={(e) => changeSelectedMovieByName(e.target.value)}
       >
         <For each={props.state.movieShowings}>
           {(movie) => <option>{movie.name}</option>}
