@@ -6,6 +6,7 @@ from .permissions import IsOwner
 from rest_framework.response import Response
 from django.db.models import F
 from django.db import transaction
+from rest_framework.decorators import action
 
 from django.contrib.auth.models import Group, User
 
@@ -56,6 +57,18 @@ class BookingViewSet(BaseReadOnlyViewSet):
     serializer_class = BookingSerializer
     permission_classes = [IsAuthenticated, IsOwner]
     filterset_fields = ["event"]
+
+    @action(detail=False, url_path="bookable-items")
+    def get_bookable_items_only(self, request):
+        if not request.query_params.get("event"):
+            return Response(
+                {"event": "This field is required."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        bookable_items = self.filter_queryset(self.queryset).values("bookable_item")
+        # make to a list of strings instead of list of objects
+        bookable_items_ids = map(lambda b: b["bookable_item"], bookable_items)
+        return Response(bookable_items_ids)
 
 
 class OrderViewSet(BaseViewSet):
