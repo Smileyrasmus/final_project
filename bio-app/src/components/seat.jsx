@@ -1,12 +1,10 @@
 import styles from "../App.module.css";
-import { createSignal, createEffect, createMemo } from "solid-js";
+import { createMemo } from "solid-js";
 
 function Seat(props) {
-  const [state, setState] = createSignal(props.data.state ?? "available"); // either inherent state or default to available
-
   const color = createMemo(() => {
-    let color = "";
-    switch (state()) {
+    let color = null;
+    switch (props.data.state) {
       case "available":
         color = "gray";
         break;
@@ -16,48 +14,23 @@ function Seat(props) {
       case "occupied":
         color = "red";
         break;
+      default:
+        color = "gray";
     }
     return color;
-  }, "gray");
+  });
 
   const isDisabled = createMemo(() => {
-    return state() === "occupied";
-  });
-
-  const seatData = createMemo(() => {
-    const data = props.data;
-    return {
-      id: data.id,
-      name: data.name,
-      theatreId: data.theatreId,
-      state: state(),
-    };
-  });
+    return props.data.state === "occupied";
+  }, false);
 
   function clicked() {
-    setState(state() == "available" ? "selected" : "available");
-
-    // update seat data
-    const index = props.state.seats.findIndex((s) => s.id === seatData().id);
-    props.setState("seats", [index], seatData());
-  }
-
-  // when state.occupied seats changes, update this seats state accordingly
-  createEffect(() => {
-    console.log("hej");
-    const occupiedSeats = props.state?.occupiedSeats;
-    if (occupiedSeats) {
-      if (occupiedSeats.includes(props.data.apiId)) {
-        setState("occupied");
-      } else {
-        if (seatData().state === "occupied") {
-          setState("available");
-        }
-      }
+    if (props.data.state !== "occupied") {
+      const newState =
+        props.data.state !== "selected" ? "selected" : "available";
+      props.setState("seats", [props.index], "state", newState);
     }
-    const index = props.state.seats.findIndex((s) => s.id === seatData().id);
-    props.setState("seats", [index], seatData());
-  });
+  }
 
   return (
     <div>

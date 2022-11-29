@@ -22,21 +22,10 @@ function BookButton(props) {
   }
 
   function changeSelectedSeatsToOccupied() {
-    props.setState(
-      // for createEffect to take effect you need to change the reference pointer.
-      // That's why we recreate a new list and seats.
-      produce((s) => {
-        const newList = [...s.seats];
-        for (let selectedSeat of selectedSeats()) {
-          let seatIndex = newList.findIndex((s) => s.id === selectedSeat.id);
-          let oldSeat = newList.find((s) => s.id === selectedSeat.id);
-          let newSeat = { ...oldSeat };
-          newSeat.state = "occupied";
-          newList[seatIndex] = newSeat;
-        }
-        s.seats = newList;
-      })
-    );
+    for (let seat of selectedSeats()) {
+      const index = props.state.seats.findIndex((s) => s.id === seat.id);
+      props.setState("seats", [index], "state", "occupied");
+    }
   }
 
   function doTheBooking() {
