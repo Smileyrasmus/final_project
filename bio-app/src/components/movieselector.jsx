@@ -15,13 +15,12 @@ function MovieSelector(props) {
   createEffect(async () => {
     const client = props.state?.client;
     if (client) {
-      const occupiedSeatApiIds = [];
       const selectedMovie = props.state?.selectedMovie;
-      // TODO: Booking Client shuold have a getAllAsync method, to flip through pages
-      const response = await client.getAsync("bookings", {
+      // get all the bookings
+      const occupiedSeatIds = await client.getAsync("bookings/bookable-items", {
         event: selectedMovie.apiId,
       });
-      console.log(response);
+      props.setState("occupiedSeats", occupiedSeatIds);
     }
   });
 

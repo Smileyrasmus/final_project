@@ -41,6 +41,22 @@ export default class BookingClient {
     return responseData;
   }
 
+  async getAllAsync(uri, params = {}) {
+    let hasNext = true;
+    params.page = 1;
+
+    let results = [];
+    while (hasNext) {
+      const response = await this.getAsync(uri, params);
+      results = results.concat(response.results);
+      params.page++;
+      if (!response.next) {
+        hasNext = false;
+      }
+    }
+    return results;
+  }
+
   async getAsync(uri, params = null) {
     uri = this.formatUri(uri);
 

@@ -1,21 +1,15 @@
-import { createEffect, createSignal } from "solid-js";
+import { createEffect, createMemo, createSignal } from "solid-js";
 import { produce } from "solid-js/store";
 import styles from "../App.module.css";
 
 function BookButton(props) {
-  const [selectedSeats, setSelectedSeats] = createSignal([]);
-  const [isDisabled, setIsDisabled] = createSignal(true);
-
-  // bundle together the selected seats for easy use
-  createEffect(() => {
+  const selectedSeats = createMemo(() => {
     const seats = props.state?.seats;
-    if (seats)
-      setSelectedSeats(seats.filter((seat) => seat?.state == "selected"));
+    if (seats) return seats.filter((seat) => seat?.state == "selected");
   });
 
-  // disable the button if no seats are selected
-  createEffect(() => {
-    setIsDisabled(selectedSeats().length === 0);
+  const isDisabled = createMemo(() => {
+    if (selectedSeats()) return selectedSeats().length === 0;
   });
 
   function alertTheBooking() {
@@ -69,7 +63,7 @@ function BookButton(props) {
         onClick={clickedBook}
         disabled={isDisabled()}
       >
-        <div>Rettellib koob</div>
+        <div>Køb billet</div>
       </button>
     </div>
   );
