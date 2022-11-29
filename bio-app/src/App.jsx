@@ -2,8 +2,8 @@
 import styles from "./App.module.css";
 import Topbar from "./components/topbar";
 import Theatre from "./components/theatre";
-import BookButton from "./components/bookbutton";
-import MovieSelector from "./components/movieselector";
+import BookButton from "./components/bookButton";
+import MovieSelector from "./components/movieSelector";
 import { createStore } from "solid-js/store";
 import appSetup from "./logic/AppSetup";
 

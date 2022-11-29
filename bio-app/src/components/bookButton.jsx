@@ -1,5 +1,4 @@
-import { createEffect, createMemo, createSignal } from "solid-js";
-import { produce } from "solid-js/store";
+import { createMemo } from "solid-js";
 import styles from "../App.module.css";
 
 function BookButton(props) {
@@ -16,8 +15,11 @@ function BookButton(props) {
     const selectedSeatNames = selectedSeats().map((s) => {
       return s.name;
     }); // Make an array only containing the names of the seats, rather than an array of the whole seat object
+
     return confirm(
-      `Billetter til sæder "${selectedSeatNames}" til filmen "${props.state.selectedMovie.name}" gøres klar til at sende afsted med brevdue.`
+      `Billetter til sæder "${selectedSeatNames}" til filmen "${
+        props.state.selectedMovie().name
+      }" gøres klar til at sende afsted med brevdue.`
     );
   }
 
