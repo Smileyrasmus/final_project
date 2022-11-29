@@ -1,4 +1,4 @@
-import { createEffect, createMemo, createSignal, For } from "solid-js";
+import { createEffect, createMemo, createSignal, For, on } from "solid-js";
 
 function MovieSelector(props) {
   const [selectedMovie, setSelectedMovie] = createSignal();
@@ -11,24 +11,41 @@ function MovieSelector(props) {
 
   props.setState({ selectedMovie: selectedStateMovie });
 
-  const occupiedSeats = createMemo(async () => {
-    const client = props.state?.client;
-    if (!client) {
-      return;
-    }
+  // effect to update state of seats after movie selection change
+  createEffect(
+    // use the on utility to make effect only react to change of selectedMovie
+    on(props.state.selectedMovie, async (movie) => {
+      // safeguard
+      const client = props.state?.client;
+      if (!client) return;
 
-    const movie = props.state?.selectedMovie;
-    if (!movie) {
-      return;
-    }
+      // safeguard
+      if (!movie) return;
 
-    // get all the bookings
-    return await client.getAsync("bookings/bookable-items", {
-      event: movie().apiId,
-    });
-  });
+      // safeguard
+      const seats = props.state?.seats;
+      if (!seats) return;
 
-  props.setState({ occupiedSeats: occupiedSeats });
+      // get all the bookable items for this movie
+      const occSeatIds = await client.getAsync("bookings/bookable-items", {
+        event: movie.apiId,
+      });
+
+      // set the seats state to either occupied or available based on client response
+      for (let seatIndex in seats) {
+        let isOccupied = false;
+        if (occSeatIds.length > 0) {
+          isOccupied = occSeatIds.includes(seats[seatIndex].apiId);
+        }
+        props.setState(
+          "seats",
+          [seatIndex],
+          "state",
+          isOccupied ? "occupied" : "available"
+        );
+      }
+    })
+  );
 
   function changeSelectedMovieByName(name) {
     let movie = props.state.movieShowings.find((movie) => movie.name === name);

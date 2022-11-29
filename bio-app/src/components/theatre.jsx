@@ -1,13 +1,12 @@
 import { For } from "solid-js";
 import styles from "../App.module.css";
 import Seat from "./seat";
-import SeatList from "./seatList";
 
 function Theatre(props) {
   return (
     <div class={styles.theatre}>
       <h3>Sæder i salen</h3>
-      <SeatList>
+      <div class={styles.seatContainer}>
         <For each={props.state.seats}>
           {(seat, i) => (
             <Seat
@@ -18,7 +17,7 @@ function Theatre(props) {
             />
           )}
         </For>
-      </SeatList>
+      </div>
     </div>
   );
 }
