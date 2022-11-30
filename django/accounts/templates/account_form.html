@@ -1,0 +1,46 @@
+<form action="" method="post">
+    {% csrf_token %}
+    <div class "form-group">
+        <h3 for="id_name">Bookable item conditions:</h3>
+        <ul>
+            <input type="hidden" name="duplicate_bookable_item" value="false">
+            <input type="checkbox" name="duplicate_bookable_item" id="duplicate_bookable_item" value="true" {% if conditions.bookable_item.duplicate_bookable_item %}checked{% endif %}>
+            <label for="duplicate_bookable_item">Prevents duplicate items</label>
+        </ul>
+        <h3 for="id_name">Location conditions:</h3>
+        <ul>
+            <input type="hidden" name="duplicate_location" value="false">
+            <input type="checkbox" name="duplicate_location" id="duplicate_location" value="true" {% if conditions.location.duplicate_location %}checked{% endif %}>
+            <label for="duplicate_location">Prevents duplicate location</label>
+        </ul>
+        <h3 for="id_name">Booking conditions:</h3>
+        <ul>
+            <input type="hidden" name="duplicate_booking" value="false">
+            <input type="checkbox" name="duplicate_booking" id="duplicate_booking" value="true" {% if conditions.booking.duplicate_booking %}checked{% endif %}>
+            <label for="duplicate_booking">Prevents duplicate booking</label>
+        </ul>
+        <ul>
+            <input type="hidden" name="require_bookable_item" value="false"> 
+            <input type="checkbox" name="require_bookable_item" id="require_bookable_item" value="true" {% if conditions.booking.require_bookable_item %}checked{% endif %}>
+            <label for="require_bookable_item">Require item</label>
+        </ul>
+        <h3 for="id_name">Order conditions:</h3>
+        <ul>
+            <input type="hidden" name="require_customer" value="false">
+            <input type="checkbox" name="require_customer" id="require_customer" value="true" {% if conditions.order.require_customer %}checked{% endif %}>
+            <label for="require_customer">Require customer</label>
+        </ul>
+        <h3 for="id_name">Event conditions:</h3>
+        <ul>
+            <input type="hidden" name="duplicate_event" value="false">
+            <input type="checkbox" name="duplicate_event" id="duplicate_event" value="true" {% if conditions.event.duplicate_event %}checked{% endif %}>
+            <label for="duplicate_event">Prevents duplicate event</label>
+        </ul>
+        <ul>
+            <input type="hidden" name="start_end_overlay" value="false">
+            <input type="checkbox" name="start_end_overlay" id="start_end_overlay" value="true" {% if conditions.event.start_end_overlay %}checked{% endif %}>
+            <label for="start_end_overlay">Prevent start/end time overlay</label>
+        </ul>
+        
+    <input type="submit" value="Save">
+</form>
