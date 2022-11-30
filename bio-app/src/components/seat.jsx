@@ -1,34 +1,49 @@
-import styles from '../App.module.css';
-import { createSignal, mergeProps } from "solid-js";
-
+import styles from "../App.module.css";
+import { createMemo } from "solid-js";
 
 function Seat(props) {
-    const [select, setSelect] = disableSeat();
-
-    function disableSeat() {
-        var color = "";
-        if (props.disabled === 'true') {
-            color = 'red'
-        } else{
-            color = 'gray'
-        }
-        return(
-            createSignal(color)
-        );
+  const color = createMemo(() => {
+    let color = null;
+    switch (props.data.state) {
+      case "available":
+        color = "gray";
+        break;
+      case "selected":
+        color = "green";
+        break;
+      case "occupied":
+        color = "red";
+        break;
+      default:
+        color = "gray";
     }
+    return color;
+  });
 
-    function clicked() {
-        setSelect(select() == 'gray' ? 'green' : 'gray')
+  const isDisabled = createMemo(() => {
+    return props.data.state === "occupied";
+  }, false);
+
+  function clicked() {
+    if (props.data.state !== "occupied") {
+      const newState =
+        props.data.state !== "selected" ? "selected" : "available";
+      props.setState("seats", [props.index], "state", newState);
     }
-    
-    return(
-        <div>
-            <button class={styles.seat} style={{background:select()}} onClick={clicked} disabled={props.disabled}>
-                {props.id}
-            </button>
-        </div>
+  }
 
-    );
+  return (
+    <div>
+      <button
+        class={styles.seat}
+        style={{ background: color() }}
+        onClick={clicked}
+        disabled={isDisabled()}
+      >
+        {props.data.name}
+      </button>
+    </div>
+  );
 }
 
 export default Seat;

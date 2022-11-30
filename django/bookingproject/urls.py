@@ -10,6 +10,9 @@ router.register(r"users", accounts_views.UserViewSet, basename="user")
 router.register(r"groups", accounts_views.GroupViewSet, basename="group")
 router.register(r"orders", alternativebookingapi_views.OrderViewSet, basename="order")
 router.register(
+    r"bookings", alternativebookingapi_views.BookingViewSet, basename="booking"
+)
+router.register(
     r"locations", alternativebookingapi_views.LocationViewSet, basename="location"
 )
 router.register(

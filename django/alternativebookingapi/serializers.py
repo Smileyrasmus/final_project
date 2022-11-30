@@ -50,7 +50,7 @@ class OrderSerializer(BaseSerializer):
 
     def save(self, **kwargs):
         user = self._user(self)
-        if user.conditions["order"]["require_customer"]:
+        if user.conditions["order"]["must_have_customer_id"]:
             if not self.validated_data.get("customer_id"):
                 raise serializers.ValidationError(
                     {"customer_id": "Customer ID is required"}
@@ -197,9 +197,12 @@ class BookableItemSerializer(BaseSerializer):
     def save(self, *args, **kwargs):
         user = self._user(self)
         name = self.context["request"].data["name"]
+        location = self.context["request"].data["location"]
         if user.conditions["bookable_item"]["duplicate_bookable_item"]:
-            if BookableItem.objects.filter(name=name, created_by=user).exists():
+            if BookableItem.objects.filter(
+                name=name, location=location, created_by=user
+            ).exists():
                 raise serializers.ValidationError(
-                    "Bookable item with this name already exists"
+                    "Bookable item on this location with this name already exists"
                 )
         super().save(*args, **kwargs)

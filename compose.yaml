@@ -21,14 +21,15 @@ services:
       - 8080:8080
 
   booking_api:
-    build: ./django
+    image: python:3.11
     restart: always
+    working_dir: /usr/src/app
     depends_on:
       - db
     # sleep some seconds becuase django fails if db container aren't ready yet.
     # This is especially true on our pi server.
     # Should be fixed in python code rather than here if possible.
-    command: bash -c "sleep ${DJANGO_DELAY:-3}; python manage.py migrate; python manage.py createsuperuser --noinput; python manage.py runserver 0.0.0.0:8000";
+    command: bash -c "sleep ${DJANGO_DELAY:-3}; pip install --no-cache-dir -r requirements.txt; python manage.py migrate; python manage.py createsuperuser --noinput; python manage.py runserver 0.0.0.0:8000";
     volumes:
       - type: bind
         source: ./django
