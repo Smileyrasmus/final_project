@@ -48,11 +48,16 @@ services:
     depends_on:
       - booking_api
     volumes:
-      - type: bind
-        source: ./bio-app
-        target: /usr/src/app
+      #- type: bind
+      #  source: ./bio-app
+      #  target: /usr/src/app
+      - ./bio-app:/usr/src/app
+      - exclude:/usr/src/app/node_modules/
     ports:
       - 3000:3000
 
 volumes:
   db_data:
+  # https://www.baeldung.com/ops/docker-exclude-sub-folder-when-adding-volume
+  exclude: 
+    driver: local
