@@ -76,23 +76,22 @@ class BookingSerializer(BaseSerializer):
             user = self._user(self)
             event = self.validated_data.get("event")
             order = self.validated_data.get("order")
-            if user.conditions["booking"]["must_have_bookable_item"]:
+            if user.conditions["booking"]["require_bookable_item"]:
                 if not self.validated_data.get("bookable_item"):
                     raise serializers.ValidationError(
                         {"bookable_item": "Bookable item is required"}
                     )
-            if user.conditions["booking"]["dublicate_bookings"]:
+            if user.conditions["booking"]["duplicate_bookings"]:
                 if Booking.objects.filter(
                     event=event, created_by=user, order=order
                 ).exists():
                     raise serializers.ValidationError(
                         {"bookable_item": "Booking already exists"}
                     )
-            if user.conditions["bookable_item"]["active"]:
-                if not self.validated_data.get("bookable_item").active:
-                    raise serializers.ValidationError(
-                        {"bookable_item": "Bookable item is not active"}
-                    )
+            if not self.validated_data.get("bookable_item").active:
+                raise serializers.ValidationError(
+                    {"bookable_item": "Bookable item is not active"}
+                )
             return super().save(**kwargs)
 
 
@@ -119,7 +118,7 @@ class EventSerializer(BaseSerializer):
             end_time = self.validated_data.get("end_time")
             location = self.validated_data.get("location")
             id = self.validated_data.get("id")
-            if user.conditions["event"]["dublicate_event"]:
+            if user.conditions["event"]["duplicate_event"]:
                 if Event.objects.filter(
                     name=name,
                     start_time=start_time,
@@ -173,7 +172,7 @@ class LocationSerializer(BaseSerializer):
         user = self._user(self)
         name = self.context["request"].data["name"]
         if (
-            user.conditions["location"]["dublicate_location"]
+            user.conditions["location"]["duplicate_location"]
             and Location.objects.filter(name=name, created_by=user).exists()
         ):
             raise serializers.ValidationError("Location with this name already exists")
@@ -199,7 +198,7 @@ class BookableItemSerializer(BaseSerializer):
         user = self._user(self)
         name = self.context["request"].data["name"]
         location = self.context["request"].data["location"]
-        if user.conditions["bookable_item"]["dublicate_bookable_item"]:
+        if user.conditions["bookable_item"]["duplicate_bookable_item"]:
             if BookableItem.objects.filter(
                 name=name, location=location, created_by=user
             ).exists():
