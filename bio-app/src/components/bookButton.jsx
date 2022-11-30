@@ -23,6 +23,24 @@ function BookButton(props) {
     );
   }
 
+  function createOrderObject() {
+    let order = {
+      order: {
+        customer_id: "Bio app customer 1",
+        note: "Made from bio app",
+      },
+      bookings: [],
+    };
+    console.log(props.state.theatre);
+    for (let seat of selectedSeats()) {
+      order.bookings.push({
+        event: props.state.selectedMovie().apiId,
+        bookable_item: seat.apiId,
+      });
+    }
+    return order;
+  }
+
   function changeSelectedSeatsToOccupied() {
     for (let seat of selectedSeats()) {
       const index = props.state.seats.findIndex((s) => s.id === seat.id);
@@ -30,12 +48,25 @@ function BookButton(props) {
     }
   }
 
-  function doTheBooking() {
-    // TODO: actually post an order, and depending on the success, change the selected seats to occupied
-    changeSelectedSeatsToOccupied();
+  async function postOrder() {
+    const client = props.state.client;
+    const order = createOrderObject();
+    let success = true;
+    try {
+      await client.postAsync("orders", order);
+    } catch (e) {
+      success = false;
+      alert("Fejl, kunne ikke købe billetter");
+    }
+    return success;
   }
 
-  function clickedBook() {
+  async function doTheBooking() {
+    const success = await postOrder();
+    if (success) changeSelectedSeatsToOccupied();
+  }
+
+  async function clickedBook() {
     // first alert the user of what is about to happen...
     const isConfirmed = alertTheBooking();
 

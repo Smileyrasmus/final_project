@@ -7,7 +7,7 @@ import BookingClient from "../logic/BookingClient";
 function createState(client, setState) {
   const state = {
     // chooses theatre with id of 1 from the "database", and unpacks it's attributes(the ... operater).
-    ...theatres.filter((theatre) => theatre.id === 1),
+    theatre: theatres.find((theatre) => theatre.id === 1),
     // only add seats which has theatre id of 1 from the "database", and sort them after thier id
     seats: seats
       .filter((seat) => seat.theatreId === 1)

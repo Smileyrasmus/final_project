@@ -32,12 +32,8 @@ export default class BookingClient {
   async postAsync(uri, data) {
     uri = this.formatUri(uri);
     let responseData;
-    try {
-      const res = await axios.post(this.domain + uri, data, this.config);
-      responseData = res.data;
-    } catch (err) {
-      console.log(err);
-    }
+    const res = await axios.post(this.domain + uri, data, this.config);
+    responseData = res.data;
     return responseData;
   }
 
