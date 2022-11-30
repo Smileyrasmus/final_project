@@ -5,6 +5,8 @@ export default defineConfig({
   plugins: [solidPlugin()],
   server: {
     port: 3000,
+    hmr: {host: 'localhost',},
+    watch: {usePolling: true},
   },
   build: {
     target: 'esnext',

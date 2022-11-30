@@ -7,10 +7,6 @@ services:
         target: /var/lib/postgresql/data
 
     restart: always
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
-      POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_DB: ${POSTGRES_DBNAME:-booking_app}
     ports:
       - 5432:5432
 
@@ -21,30 +17,33 @@ services:
       - 8080:8080
 
   booking_api:
-    image: python:3.11
+    build: ./django/
     restart: always
-    working_dir: /usr/src/app
     depends_on:
       - db
-    # sleep some seconds becuase django fails if db container aren't ready yet.
-    # This is especially true on our pi server.
-    # Should be fixed in python code rather than here if possible.
-    command: bash -c "sleep ${DJANGO_DELAY:-3}; pip install --no-cache-dir -r requirements.txt; python manage.py migrate; python manage.py createsuperuser --noinput; python manage.py runserver 0.0.0.0:8000";
     volumes:
       - type: bind
         source: ./django
         target: /usr/src/app
-    environment:
-      POSTGRES_HOST: ${POSTGRES_HOST:-db}
-      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
-      POSTGRES_DBNAME: ${POSTGRES_DBNAME:-booking_app}
-      POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
-      DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME:-admin}
-      DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL:-admin@example.com}
-      DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD:-admin}
     ports:
       - 8000:8000
 
+  bio_app:
+    build: ./bio-app/
+    restart: always
+    depends_on:
+      - booking_api
+    volumes:
+      #- type: bind
+      #  source: ./bio-app
+      #  target: /usr/src/app
+      - ./bio-app:/usr/src/app
+      - exclude:/usr/src/app/node_modules/
+    ports:
+      - 3000:3000
+
 volumes:
   db_data:
+  exclude:
+    # https://www.baeldung.com/ops/docker-exclude-sub-folder-when-adding-volume
+    driver: local

@@ -21,7 +21,8 @@ function createState(client, setState) {
 
 export default async function appSetup(setState) {
   // create the booking api client
-  const client = new BookingClient("http://localhost:8000");
+  const bookingApiHost = import.meta.env?.VITE_BOOKING_API_HOST ?? "localhost";
+  const client = new BookingClient(`http://${bookingApiHost}:8000`);
   await client.authenticate("admin", "admin");
 
   // create the sync service to syncronize state objects with the booking api database
