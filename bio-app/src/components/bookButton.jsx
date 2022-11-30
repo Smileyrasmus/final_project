@@ -31,7 +31,6 @@ function BookButton(props) {
       },
       bookings: [],
     };
-    console.log(props.state.theatre);
     for (let seat of selectedSeats()) {
       order.bookings.push({
         event: props.state.selectedMovie().apiId,
