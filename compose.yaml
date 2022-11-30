@@ -42,5 +42,17 @@ services:
     ports:
       - 8000:8000
 
+  bio_app:
+    build: ./bio-app/
+    restart: always
+    depends_on:
+      - booking_api
+    volumes:
+      - type: bind
+        source: ./bio-app
+        target: /usr/src/app
+    ports:
+      - 3000:3000
+
 volumes:
   db_data:

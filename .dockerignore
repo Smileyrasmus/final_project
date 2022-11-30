@@ -25,4 +25,9 @@ src/node_modules
 web/media
 web/static/CACHE
 stats
+
 Dockerfile
+
+pnpm-lock.yaml
+node_modules/
+.gitignore
