@@ -61,6 +61,7 @@ export default class SyncService {
       params: { location: theatreApiId },
     });
 
+    const objectsToPost = [];
     for (let seat of seats) {
       const apiCopy = apiSeats.find((as) => as.name === seat.name);
       if (!apiCopy) {
@@ -69,12 +70,18 @@ export default class SyncService {
           name: seat.name,
           location: theatreApiId,
         };
-        let apiResult = await this.client.postAsync(uri, data);
-        seat.apiId = apiResult.id;
+        objectsToPost.push(data);
       } else {
         // if found in booking API
         seat.apiId = apiCopy.id;
       }
+    }
+
+    const apiResults = await this.client.postAsync(uri, objectsToPost);
+    // make sure seats gains apiId after post
+    for (let apiSeat of apiResults) {
+      const matchingSeat = seats.find((s) => s.name === apiSeat.name);
+      matchingSeat.apiId = apiSeat.id;
     }
   }
 }
