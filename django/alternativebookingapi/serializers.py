@@ -51,7 +51,6 @@ class OrderSerializer(BaseSerializer):
     def save(self, **kwargs):
         user = self._user(self)
         if user.conditions["order"]["require_customer"]:
-            print(self.validated_data.get("customer_id"))
             if not self.validated_data.get("customer_id"):
                 raise serializers.ValidationError(
                     {"customer_id": "Customer ID is required"}
@@ -72,28 +71,32 @@ class BookingSerializer(BaseSerializer):
             "event",
             "bookable_item",
         ]
+        validators = []
 
-        def save(self, **kwargs):
-            user = self._user(self)
-            event = self.validated_data.get("event")
-            order = self.validated_data.get("order")
-            if user.conditions["booking"]["require_bookable_item"]:
-                if not self.validated_data.get("bookable_item"):
-                    raise serializers.ValidationError(
-                        {"bookable_item": "Bookable item is required"}
-                    )
-            if user.conditions["booking"]["duplicate_bookings"]:
-                if Booking.objects.filter(
-                    event=event, created_by=user, order=order
-                ).exists():
-                    raise serializers.ValidationError(
-                        {"bookable_item": "Booking already exists"}
-                    )
-            if not self.validated_data.get("bookable_item").active:
+    def validate(self, data):
+        user = self._user(self)
+        event = data["event"]
+        bookable_item = data.get("bookable_item", None)
+        if user.conditions["booking"]["require_bookable_item"]:
+            if not bookable_item:
                 raise serializers.ValidationError(
-                    {"bookable_item": "Bookable item is not active"}
+                    {"bookable_item": "Bookable item is required"}
                 )
-            return super().save(**kwargs)
+        if user.conditions["booking"]["duplicate_booking"] and bookable_item:
+            if (
+                Booking.objects.all()
+                .filter(bookable_item=bookable_item, event=event, created_by=user)
+                .exists()
+            ):
+                raise serializers.ValidationError(
+                    {"bookable_item": "Booking already exists"}
+                )
+        # TODO: 'bookable_item' object is not subscriptable
+        # if not bookable_item["active"]:
+        #     raise serializers.ValidationError(
+        #         {"bookable_item": "Bookable item is not active"}
+        #     )
+        return data
 
 
 class EventSerializer(BaseSerializer):
