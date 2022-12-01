@@ -33,16 +33,14 @@ function Seat(props) {
   }
 
   return (
-    <div>
-      <button
-        class={styles.seat}
-        style={{ background: color() }}
-        onClick={clicked}
-        disabled={isDisabled()}
-      >
-        {props.data.name}
-      </button>
-    </div>
+    <button
+      class={styles.seat}
+      style={{ background: color() }}
+      onClick={clicked}
+      disabled={isDisabled()}
+    >
+      {props.data.name}
+    </button>
   );
 }
 
