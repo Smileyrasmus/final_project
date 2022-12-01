@@ -50,7 +50,8 @@ class OrderSerializer(BaseSerializer):
 
     def save(self, **kwargs):
         user = self._user(self)
-        if user.conditions["order"]["must_have_customer_id"]:
+        if user.conditions["order"]["require_customer"]:
+            print(self.validated_data.get("customer_id"))
             if not self.validated_data.get("customer_id"):
                 raise serializers.ValidationError(
                     {"customer_id": "Customer ID is required"}
