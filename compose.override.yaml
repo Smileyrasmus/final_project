@@ -9,6 +9,13 @@ services:
       target: base
     volumes:
       - ./bio-app:/usr/src/app
+      - exclude:/usr/src/app/node_modules/
+
     command: bash -c "npm run dev -- --host"
     ports:
       - 3000:3000
+
+volumes:
+  # https://www.baeldung.com/ops/docker-exclude-sub-folder-when-adding-volume
+  exclude:
+    driver: local
