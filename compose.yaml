@@ -7,10 +7,6 @@ services:
         target: /var/lib/postgresql/data
 
     restart: always
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
-      POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_DB: ${POSTGRES_DBNAME:-booking_app}
     ports:
       - 5432:5432
 
@@ -25,7 +21,6 @@ services:
     volumes:
       - ./django:/usr/src/app
     restart: always
-    working_dir: /usr/src/app
     depends_on:
       - db
     environment:
@@ -48,3 +43,6 @@ services:
 
 volumes:
   db_data:
+  exclude:
+    # https://www.baeldung.com/ops/docker-exclude-sub-folder-when-adding-volume
+    driver: local
