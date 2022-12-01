@@ -1,0 +1,7 @@
+services:
+  bio_app:
+    build:
+      context: ./bio-app/
+      target: prod
+    ports:
+      - 3000:4173

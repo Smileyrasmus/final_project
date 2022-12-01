@@ -1,0 +1,14 @@
+services:
+  booking_api:
+    build: ./django/
+    volumes:
+      - ./django:/usr/src/app
+  bio_app:
+    build:
+      context: ./bio-app/
+      target: base
+    volumes:
+      - ./bio-app:/usr/src/app
+    command: bash -c "npm run dev -- --host"
+    ports:
+      - 3000:3000
