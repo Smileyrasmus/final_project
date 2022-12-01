@@ -44,6 +44,23 @@ class BookableItemViewSet(BaseViewSet):
     permission_classes = [IsAuthenticated, IsOwner]
     filterset_fields = ["name", "location"]
 
+    def create(self, request, *args, **kwargs):
+        """
+        #checks if post request data is an array initializes serializer with many=True
+        else executes default CreateModelMixin.create function
+        """
+        is_many = isinstance(request.data, list)
+        if not is_many:
+            return super(BookableItemViewSet, self).create(request, *args, **kwargs)
+        else:
+            serializer = self.get_serializer(data=request.data, many=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(
+                serializer.data, status=status.HTTP_201_CREATED, headers=headers
+            )
+
 
 class EventViewSet(BaseViewSet):
     queryset = Event.objects.all()
