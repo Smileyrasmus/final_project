@@ -5,7 +5,7 @@ export default class SyncService {
 
   async syncEverything(theatres, movieShowings, seats) {
     await this.syncTheatres(theatres);
-    await this.syncMovieshowings(movieShowings, theatres[0].apiId);
+    await this.syncMovieShowings(movieShowings, theatres[0].apiId);
     await this.syncSeats(seats, theatres[0].apiId);
   }
 
@@ -30,7 +30,7 @@ export default class SyncService {
     }
   }
 
-  async syncMovieshowings(movieShowings, theatreId) {
+  async syncMovieShowings(movieShowings, theatreId) {
     const uri = "events";
 
     for (let movie of movieShowings) {
@@ -54,24 +54,26 @@ export default class SyncService {
     }
   }
 
-  async syncSeats(seats, theatreId) {
+  async syncSeats(seats, theatreApiId) {
     const uri = "bookableitems";
 
-    for (let seat of seats) {
-      let data = {
-        name: seat.name,
-        location: theatreId,
-      };
+    const apiSeats = await this.client.getAllAsync(uri, {
+      params: { location: theatreApiId },
+    });
 
-      const response = await this.client.getAsync(uri, data);
-      const results = response.results;
-      if (results.length == 0) {
+    for (let seat of seats) {
+      const apiCopy = apiSeats.find((as) => as.name === seat.name);
+      if (!apiCopy) {
         // if not found in booking API
+        const data = {
+          name: seat.name,
+          location: theatreApiId,
+        };
         let apiResult = await this.client.postAsync(uri, data);
         seat.apiId = apiResult.id;
       } else {
         // if found in booking API
-        seat.apiId = results[0].id;
+        seat.apiId = apiCopy.id;
       }
     }
   }
