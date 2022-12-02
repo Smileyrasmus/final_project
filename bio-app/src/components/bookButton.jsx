@@ -1,4 +1,4 @@
-import { createMemo } from "solid-js";
+import { createEffect, createMemo } from "solid-js";
 import styles from "../App.module.css";
 
 function BookButton(props) {
@@ -19,14 +19,16 @@ function BookButton(props) {
     return confirm(
       `Billetter til sæder "${selectedSeatNames}" til filmen "${
         props.state.selectedMovie().name
-      }" gøres klar til at sende afsted med brevdue.`
+      }" gøres klar til at sende afsted med brevdue til "${
+        props.state.selectedCustomer().customer_id
+      }".`
     );
   }
 
   function createOrderObject() {
     let order = {
       order: {
-        customer_id: "Bio app customer 1",
+        customer_id: props.state.selectedCustomer().customer_id,
         note: "Made from bio app",
       },
       bookings: [],

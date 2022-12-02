@@ -2,6 +2,7 @@ import SyncService from "./syncdata";
 import theatres from "../database/theatres.json";
 import movieShowings from "../database/movieshowing.json";
 import seats from "../database/seats.json";
+import customers from "../database/customer.json";
 import BookingClient from "../logic/BookingClient";
 
 function createState(client, setState) {
@@ -15,6 +16,7 @@ function createState(client, setState) {
     // only add movie showings for theater with id 1
     movieShowings: movieShowings.filter((showing) => showing.theatreId === 1),
     client: client,
+    customers: customers,
   };
   setState(state);
 }

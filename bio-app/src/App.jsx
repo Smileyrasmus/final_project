@@ -1,4 +1,3 @@
-//import logo from './logo.svg';
 import styles from "./App.module.css";
 import Topbar from "./components/topbar";
 import Theatre from "./components/theatre";
@@ -14,7 +13,7 @@ function App() {
 
   return (
     <div class={styles.App}>
-      <Topbar />
+      <Topbar state={state} setState={setState} />
       <MovieSelector state={state} setState={setState} />
       <Theatre state={state} setState={setState} />
       <BookButton state={state} setState={setState} />
