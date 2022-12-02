@@ -5,6 +5,7 @@ from .models import CustomUser
 from .serializers import UserSerializer, GroupSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.shortcuts import render
 
 
 from rest_framework.permissions import IsAuthenticated

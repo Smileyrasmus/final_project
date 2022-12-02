@@ -4,11 +4,8 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsOwner
 from rest_framework.response import Response
-from django.db.models import F
 from django.db import transaction
 from rest_framework.decorators import action
-
-from django.contrib.auth.models import Group, User
 
 
 class BaseReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -100,13 +97,46 @@ class OrderViewSet(BaseViewSet):
                 {"bookings": "This field is required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        serializer = self.get_serializer(data=request.data["order"])
-        serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
-        for booking in request.data["bookings"]:
-            booking["order"] = instance.id
-            self.serializer_class = BookingSerializer
-            booking_serializer = self.get_serializer(data=booking)
-            booking_serializer.is_valid(raise_exception=True)
-            booking_serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        order_serializer = self.get_serializer(data=request.data["order"])
+        order_serializer.is_valid(raise_exception=True)
+        self.perform_create(order_serializer)
+        order_headers = self.get_success_headers(order_serializer.data)
+
+        # create bookings with order id
+        id = order_serializer.data["id"]
+        bookings = request.data["bookings"]
+        for booking in bookings:
+            booking["order"] = id
+
+        self.serializer_class = BookingSerializer
+        booking_serializer = self.get_serializer(data=bookings, many=True)
+        booking_serializer.is_valid(raise_exception=True)
+        self.perform_create(booking_serializer)
+        booking_headers = self.get_success_headers(booking_serializer.data)
+
+        # merge 2 dicts
+        headers = order_headers.update(booking_headers)
+
+        return Response(
+            order_serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
+
+    # @transaction.atomic
+    # def create(self, request, *args, **kwargs):
+    #     if not request.data.get("bookings"):
+    #         return Response(
+    #             {"bookings": "This field is required."},
+    #             status=status.HTTP_400_BAD_REQUEST,
+    #         )
+    #     serializer = self.get_serializer(data=request.data["order"])
+    #     serializer.is_valid(raise_exception=True)
+    #     instance = serializer.save()
+    #     for booking in request.data["bookings"]:
+    #         booking["order"] = instance.id
+    #         self.serializer_class = BookingSerializer
+    #         booking_serializer = self.get_serializer(data=booking)
+    #         booking_serializer.is_valid(raise_exception=True)
+    #         booking_serializer.save()
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
