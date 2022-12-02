@@ -1,4 +1,4 @@
-import { createEffect, createMemo } from "solid-js";
+import { createMemo } from "solid-js";
 import styles from "../App.module.css";
 
 function BookButton(props) {

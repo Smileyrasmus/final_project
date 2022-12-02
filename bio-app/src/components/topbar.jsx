@@ -1,4 +1,4 @@
-import { createEffect, createSignal, createMemo, on } from "solid-js";
+import { createEffect, createSignal, createMemo } from "solid-js";
 import styles from "../App.module.css";
 
 function TopBar(props) {
