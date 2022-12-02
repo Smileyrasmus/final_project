@@ -6,6 +6,7 @@ import MovieSelector from "./components/movieSelector";
 import { createStore } from "solid-js/store";
 import appSetup from "./logic/AppSetup";
 import { createMemo, createSignal, Show } from "solid-js";
+import CustomerSelector from "./components/customerSelector";
 
 function App() {
   const [state, setState] = createStore({});
@@ -24,8 +25,9 @@ function App() {
       fallback={<h1>Ingen forbindelse til booking api</h1>}
     >
       <div class={styles.App}>
-        <Topbar state={state} setState={setState} />
+        <Topbar />
         <Show when={isLoaded()} fallback={<h1>Loading...</h1>}>
+          <CustomerSelector state={state} setState={setState} />
           <MovieSelector state={state} setState={setState} />
           <Theatre state={state} setState={setState} />
           <BookButton state={state} setState={setState} />
