@@ -5,7 +5,7 @@ import BookButton from "./components/bookButton";
 import MovieSelector from "./components/movieSelector";
 import { createStore } from "solid-js/store";
 import appSetup from "./logic/AppSetup";
-import { createMemo, createSignal, ErrorBoundary, Show } from "solid-js";
+import { createMemo, createSignal, Show } from "solid-js";
 
 function App() {
   const [state, setState] = createStore({});
