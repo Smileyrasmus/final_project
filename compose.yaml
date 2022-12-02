@@ -1,10 +1,6 @@
 services:
   db:
     image: postgres:15
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
-      POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_DB: ${POSTGRES_DBNAME:-booking_app}
     volumes:
       - type: volume
         source: db_data
@@ -27,16 +23,6 @@ services:
     restart: always
     depends_on:
       - db
-    environment:
-      DJANGO_DELAY: ${DJANGO_DELAY:-3}
-      POSTGRES_HOST: ${POSTGRES_HOST:-db}
-      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
-      POSTGRES_DBNAME: ${POSTGRES_DBNAME:-booking_app}
-      POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
-      DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME:-admin}
-      DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_EMAIL:-admin@example.com}
-      DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD:-admin}
     ports:
       - 8000:8000
 
