@@ -14,7 +14,8 @@ function App() {
   appSetup(setState).catch(() => setConnectionToApi(false));
 
   const isLoaded = createMemo(() => {
-    return state?.theatre !== undefined;
+    // just checks that the state has anything in it
+    return Object.keys(state).length > 0;
   });
 
   return (
