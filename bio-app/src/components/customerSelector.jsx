@@ -11,26 +11,24 @@ export default function CustomerSelector(props) {
 
   props.setState({ selectedCustomer: selectedStateCustomer });
 
-  createEffect(async () => {
+  async function makeAlreadyBookedSeatsYellow(selectedCustomer, selectedMovie) {
     // safeguard
     const client = props.state?.client;
     if (!client) return;
 
     // safeguard
-    const sc = props.state?.selectedCustomer;
-    if (!sc()) return;
+    if (!selectedCustomer) return;
 
     // safeguard
-    const movie = props.state?.selectedMovie;
-    if (!movie()) return;
+    if (!selectedMovie) return;
 
     // safeguard
     const seats = props.state?.seats;
     if (!seats) return;
 
     const response = await client.getAllAsync("orders", {
-      customer_id: sc().customer_id,
-      event_id: movie().apiId,
+      customer_id: selectedCustomer.customer_id,
+      event_id: selectedMovie.apiId,
     });
 
     let seatApiIds = [];
@@ -55,7 +53,14 @@ export default function CustomerSelector(props) {
         isOccupied ? true : false
       );
     }
-  });
+  }
+
+  createEffect(async () =>
+    makeAlreadyBookedSeatsYellow(
+      props.state.selectedCustomer(),
+      props.state.selectedMovie()
+    )
+  );
 
   function changeSelectedCustomer(customer_id) {
     let customer = props.state.customers.find(
