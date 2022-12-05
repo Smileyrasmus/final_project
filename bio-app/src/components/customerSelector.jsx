@@ -11,59 +11,51 @@ export default function CustomerSelector(props) {
 
   props.setState({ selectedCustomer: selectedStateCustomer });
 
-  createEffect(
-    on(props.state.selectedCustomer, async (sc) => {
-      console.log("customer");
+  createEffect(async () => {
+    // safeguard
+    const client = props.state?.client;
+    if (!client) return;
 
-      // safeguard
-      const client = props.state?.client;
-      if (!client) return;
+    // safeguard
+    const sc = props.state?.selectedCustomer;
+    if (!sc()) return;
 
-      // safeguard
-      if (!sc) return;
+    // safeguard
+    const movie = props.state?.selectedMovie;
+    if (!movie()) return;
 
-      // safeguard
-      const movie = props.state?.selectedMovie();
-      if (!movie) return;
+    // safeguard
+    const seats = props.state?.seats;
+    if (!seats) return;
 
-      // safeguard
-      const seats = props.state?.seats;
-      if (!seats) return;
+    const response = await client.getAllAsync("orders", {
+      customer_id: sc().customer_id,
+      event_id: movie().apiId,
+    });
 
-      const response = await client.getAllAsync("orders", {
-        customer_id: sc.customer_id,
-        event_id: movie.apiId,
-      });
+    let seatApiIds = [];
+    for (let order of response) {
+      seatApiIds = seatApiIds.concat(
+        order.bookings.map((b) => {
+          return b.bookable_item__id;
+        })
+      );
+    }
 
-      let seatApiIds = [];
-      for (let order of response) {
-        seatApiIds = seatApiIds.concat(
-          order.bookings.map((b) => {
-            return b.bookable_item__id;
-          })
-        );
+    // set the seats state to either occupiedBySelectedCustomer if ordered
+    for (let seatIndex in seats) {
+      let isOccupied = false;
+      if (seatApiIds.length > 0) {
+        isOccupied = seatApiIds.includes(seats[seatIndex].apiId);
       }
-      console.log(seatApiIds);
-
-      // set the seats state to either occupiedBySelectedCustomer if ordered
-      for (let seatIndex in seats) {
-        let isOccupied = false;
-        if (seatApiIds.length > 0) {
-          isOccupied = seatApiIds.includes(seats[seatIndex].apiId);
-          console.log(seats[seatIndex].apiId);
-          console.log(isOccupied);
-        }
-        if (isOccupied) {
-          props.setState(
-            "seats",
-            [seatIndex],
-            "state",
-            "occupiedBySelectedCustomer"
-          );
-        }
-      }
-    })
-  );
+      props.setState(
+        "seats",
+        [seatIndex],
+        "isOccupiedBySelectedUser",
+        isOccupied ? true : false
+      );
+    }
+  });
 
   function changeSelectedCustomer(customer_id) {
     let customer = props.state.customers.find(
