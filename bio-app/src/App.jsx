@@ -13,7 +13,7 @@ function App() {
   const [connectionToApi, setConnectionToApi] = createSignal(true);
 
   appSetup(setState).catch((err) => {
-    console.log(err);
+    console.error(err);
     setConnectionToApi(false);
   });
 

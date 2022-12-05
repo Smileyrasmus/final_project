@@ -5,16 +5,19 @@ import seats from "../database/seats.json";
 import customers from "../database/customer.json";
 import BookingClient from "../logic/BookingClient";
 
-function createState(client, setState) {
+async function createState(client, setState) {
+  const movies = movieShowings.filter((showing) => showing.theatreId === 1);
   const state = {
     // chooses theatre with id of 1 from the "database", and unpacks it's attributes(the ... operater).
     theatre: theatres.find((theatre) => theatre.id === 1),
-    // only add seats which has theatre id of 1 from the "database", and sort them after thier id
+    // only add seats which has theatre id of 1 from the "database", and sort them after their id
     seats: seats
       .filter((seat) => seat.theatreId === 1)
       .sort((a, b) => a.id - b.id),
     // only add movie showings for theater with id 1
-    movieShowings: movieShowings.filter((showing) => showing.theatreId === 1),
+    movieShowings: [...movies],
+    selectedMovie: { ...movies[0] },
+    selectedCustomer: { ...customers[0] },
     client: client,
     customers: customers,
   };
@@ -32,5 +35,5 @@ export default async function appSetup(setState) {
   await syncService.syncEverything(theatres, movieShowings, seats); // sync data objects
 
   // create the default state of the app
-  createState(client, setState);
+  await createState(client, setState);
 }

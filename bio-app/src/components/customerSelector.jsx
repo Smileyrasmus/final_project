@@ -1,15 +1,12 @@
-import { createSignal, createMemo, createEffect, on } from "solid-js";
+import { createEffect } from "solid-js";
 
 export default function CustomerSelector(props) {
-  const [selectedCustomer, setSelectedCustomer] = createSignal();
-
-  const selectedStateCustomer = createMemo(() => {
-    if (props.state?.customers) {
-      return selectedCustomer() ?? props.state.customers[0];
-    }
-  });
-
-  props.setState({ selectedCustomer: selectedStateCustomer });
+  createEffect(() =>
+    makeAlreadyBookedSeatsYellow(
+      props.state.selectedCustomer,
+      props.state.selectedMovie
+    )
+  );
 
   async function makeAlreadyBookedSeatsYellow(selectedCustomer, selectedMovie) {
     // safeguard
@@ -55,18 +52,12 @@ export default function CustomerSelector(props) {
     }
   }
 
-  createEffect(async () =>
-    makeAlreadyBookedSeatsYellow(
-      props.state.selectedCustomer(),
-      props.state.selectedMovie()
-    )
-  );
-
   function changeSelectedCustomer(customer_id) {
-    let customer = props.state.customers.find(
+    const customer = props.state.customers.find(
       (customer) => customer.customer_id === customer_id
     );
-    setSelectedCustomer(customer);
+
+    props.setState("selectedCustomer", customer);
   }
 
   return (
