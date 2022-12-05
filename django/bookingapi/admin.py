@@ -1,43 +1,78 @@
 from django.contrib import admin
-from .models import *
+
+from .models import Order, Event, Booking, Location, BookableItem
 
 
-class BookableLocationAdmin(admin.ModelAdmin):
-    list_display = ("name", "description", "created_by")
-
-
-admin.site.register(BookableLocation)
-
-
-class SeatAdmin(admin.ModelAdmin):
+class OrderAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
+        "note",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+    )
+
+
+admin.site.register(Order, OrderAdmin)
+
+
+class EventAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
         "name",
         "description",
-        "bookable_location",
-        "row",
-        "restricted",
-        "created_by",
-    )
-
-
-admin.site.register(Seat)
-
-
-class LocationBookingAdmin(admin.ModelAdmin):
-    list_display = (
-        "bookable_location",
         "start_time",
         "end_time",
-        "event",
-        "created_by",
+        "created_at",
     )
 
 
-admin.site.register(LocationBooking)
+admin.site.register(Event, EventAdmin)
 
 
-class SeatBookingAdmin(admin.ModelAdmin):
-    list_display = ("customer", "seat", "created_by")
+class BookingAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "order",
+        "event",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+    )
 
 
-admin.site.register(SeatBooking)
+admin.site.register(Booking, BookingAdmin)
+
+
+class LocationAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "description",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+    )
+
+
+admin.site.register(Location, LocationAdmin)
+
+
+class bookableItemAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "description",
+        "active",
+        "location",
+        "created_at",
+        "updated_at",
+        "created_by",
+        "updated_by",
+    )
+
+
+admin.site.register(BookableItem, bookableItemAdmin)

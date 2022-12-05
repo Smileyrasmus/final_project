@@ -1,9 +1,10 @@
 from django.conf import settings
 from django.db import models
-from django.core.exceptions import ValidationError
+import uuid
 
 
-class basemodel(models.Model):
+class BaseModel(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(
@@ -23,141 +24,40 @@ class basemodel(models.Model):
         abstract = True
 
 
-class BookableLocation(basemodel):
+class Order(BaseModel):
+    customer_id = models.CharField(max_length=255, null=True, blank=True)
+    note = models.CharField(max_length=255, blank=True, null=True)
+
+
+class Event(BaseModel):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+
+
+class Location(BaseModel):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    events = models.ManyToManyField("Event", related_name="locations", blank=True)
+
+
+class BookableItem(BaseModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, blank=True, null=True)
-
-    @staticmethod
-    def has_read_permission(request):
-        return True
-
-    def has_object_read_permission(self, request):
-        return True
-
-    @staticmethod
-    def has_write_permission(request):
-        return True
-
-    def has_object_write_permission(self, request):
-        return request.user == self.created_by
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["name", "created_by"],
-                name="unique_location_name",
-                violation_error_message="You already have a location with this name",
-            )
-        ]
-
-
-class Seat(basemodel):
-    name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255, blank=True, null=True)
-    bookable_location = models.ForeignKey(
-        BookableLocation, on_delete=models.CASCADE, related_name="seats"
-    )
-    restricted = models.BooleanField(default=False)
-
-    @staticmethod
-    def has_read_permission(request):
-        return True
-
-    def has_object_read_permission(self, request):
-        return True
-
-    @staticmethod
-    def has_write_permission(request):
-        return True
-
-    def has_object_write_permission(self, request):
-        return request.user == self.created_by
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["name", "bookable_location"],
-                name="unique_seat_name",
-                violation_error_message="You already have a seat with this name",
-            )
-        ]
-
-
-class LocationBooking(basemodel):
-    bookable_location = models.ForeignKey(
-        "BookableLocation", on_delete=models.CASCADE, related_name="location_bookings"
-    )
-    event_name = models.CharField(max_length=255)
-    event_description = models.CharField(max_length=255, blank=True, null=True)
-    start_time = models.DateTimeField(null=True)
-    end_time = models.DateTimeField(null=True)
-
-    @staticmethod
-    def has_read_permission(request):
-        return True
-
-    def has_object_read_permission(self, request):
-        return True
-
-    @staticmethod
-    def has_write_permission(request):
-        return True
-
-    def has_object_write_permission(self, request):
-        return request.user == self.created_by
-
-    def save(self, *args, **kwargs):
-        if self.start_time >= self.end_time:
-            raise ValidationError("Start time must be before end time")
-        if self.id is None:
-            if LocationBooking.objects.filter(
-                bookable_location=self.bookable_location,
-                start_time__lt=self.end_time,
-                end_time__gt=self.start_time,
-            ).exists():
-                raise ValidationError("Location already booked for this time")
-        else:
-            if (
-                LocationBooking.objects.filter(
-                    bookable_location=self.bookable_location,
-                    start_time__lt=self.end_time,
-                    end_time__gt=self.start_time,
-                )
-                .exclude(id=self.id)
-                .exists()
-            ):
-                raise ValidationError("Location already booked for this time")
-        super().save(*args, **kwargs)
-
-
-class SeatBooking(basemodel):
-    customer = models.CharField(max_length=255)
-    seat = models.ForeignKey(
-        "Seat", on_delete=models.CASCADE, related_name="seat_bookings"
-    )
-    location_booking = models.ForeignKey(
-        "LocationBooking", on_delete=models.CASCADE, related_name="seat_bookings"
+    active = models.BooleanField(default=True)
+    location = models.ForeignKey(
+        Location, on_delete=models.CASCADE, related_name="seats", null=True, blank=True
     )
 
-    @staticmethod
-    def has_read_permission(request):
-        return True
 
-    def has_object_read_permission(self, request):
-        return True
-
-    @staticmethod
-    def has_write_permission(request):
-        return True
-
-    def has_object_write_permission(self, request):
-        return request.user == self.created_by
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["seat", "location_booking"],
-                name="unique_seat_booking",
-                violation_error_message="Seat already booked for this event",
-            )
-        ]
+class Booking(BaseModel):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="bookings")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="bookings")
+    bookable_item = models.ForeignKey(
+        BookableItem,
+        on_delete=models.CASCADE,
+        related_name="bookings",
+        null=True,
+        blank=True,
+    )

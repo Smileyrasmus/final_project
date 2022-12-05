@@ -1,147 +1,142 @@
-from bookingapi.models import *
-from bookingapi.serializers import *
-from dry_rest_permissions.generics import DRYPermissions
-from rest_framework import viewsets
+from .serializers import *
+from .models import *
+from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
-from django.core.exceptions import ValidationError
-from django.db.models import Count, F
-
-from django.contrib.auth.models import Group, User
-
-
-class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
-
-    queryset = User.objects.all().order_by("-date_joined")
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+from .permissions import IsOwner
+from rest_framework.response import Response
+from django.db import transaction
+from rest_framework.decorators import action
 
 
-class GroupViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
-
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-    permission_classes = [IsAuthenticated]
-
-
-class BookableLocationViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows bookable locations to be viewed or edited.
-    """
-
-    queryset = BookableLocation.objects.all()
-    serializer_class = BookableLocationSerializer
-    permission_classes = [IsAuthenticated]
-
+class BaseReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         if self.request.user.is_superuser:
-            return BookableLocation.objects.all().annotate(seat_amount=Count("seats"))
-        else:
-            return BookableLocation.objects.filter(
-                created_by__groups__in=self.request.user.groups.all()
-            ).annotate(seat_amount=Count("seats"))
+            return self.queryset.all()
+        return self.queryset.filter(created_by=self.request.user)
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
-
-    def perform_update(self, serializer):
-        serializer.save(updated=self.request.user)
+    class Meta:
+        abstract = True
 
 
-class SeatViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows seats to be viewed or edited.
-    """
-
-    queryset = Seat.objects.all()
-    serializer_class = SeatSerializer
-    permission_classes = (DRYPermissions,)
-
+class BaseViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.user.is_superuser:
-            return Seat.objects.all()
+            return self.queryset.all()
+        return self.queryset.filter(created_by=self.request.user)
+
+    class Meta:
+        abstract = True
+
+
+class LocationViewSet(BaseViewSet):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
+    filterset_fields = ["name"]
+
+
+class BookableItemViewSet(BaseViewSet):
+    queryset = BookableItem.objects.all()
+    serializer_class = BookableItemSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
+    filterset_fields = ["name", "location"]
+
+    def create(self, request, *args, **kwargs):
+        """
+        #checks if post request data is an array initializes serializer with many=True
+        else executes default CreateModelMixin.create function
+        """
+        is_many = isinstance(request.data, list)
+        if not is_many:
+            return super(BookableItemViewSet, self).create(request, *args, **kwargs)
         else:
-            return Seat.objects.filter(
-                created_by__groups__in=self.request.user.groups.all()
+            serializer = self.get_serializer(data=request.data, many=True)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            return Response(
+                serializer.data, status=status.HTTP_201_CREATED, headers=headers
             )
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
 
-    def perform_update(self, serializer):
-        serializer.save(updated=self.request.user)
+class EventViewSet(BaseViewSet):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
+    filterset_fields = ["name", "start_time", "end_time"]
 
 
-class LocationBookingViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows location bookings to be viewed or edited.
-    """
+class BookingViewSet(BaseReadOnlyViewSet):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
+    filterset_fields = ["event"]
 
-    serializer_class = LocationBookingSerializer
-    permission_classes = (DRYPermissions,)
-
-    def get_queryset(self):
-        if self.request.user.is_superuser:
-            return LocationBooking.objects.all()
-        else:
-            return LocationBooking.objects.filter(
-                created_by__groups__in=self.request.user.groups.all()
+    @action(detail=False, url_path="bookable-items")
+    def get_bookable_items_only(self, request):
+        if not request.query_params.get("event"):
+            return Response(
+                {"event": "This field is required."}, status=status.HTTP_400_BAD_REQUEST
             )
 
-    def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user)
+        bookable_items = self.filter_queryset(self.queryset).values("bookable_item")
+        # make to a list of strings instead of list of objects
+        bookable_items_ids = map(lambda b: b["bookable_item"], bookable_items)
+        return Response(bookable_items_ids)
 
-    def perform_update(self, serializer):
-        serializer.save(updated=self.request.user)
 
+class OrderViewSet(BaseViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated, IsOwner]
 
-class SeatBookingViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows seat bookings to be viewed or edited.
-    """
-
-    queryset = SeatBooking.objects.all()
-    serializer_class = SeatBookingSerializer
-    permission_classes = (DRYPermissions,)
-
-    def get_queryset(self):
-        if self.request.user.is_superuser:
-            return SeatBooking.objects.all().annotate(
-                seat_name=F("seat__name"),
-                location_name=F("location_booking__bookable_location__name"),
-                event_name=F("location_booking__event_name"),
-                event_description=F("location_booking__event_description"),
-                start_time=F("location_booking__start_time"),
-                end_time=F("location_booking__end_time"),
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        if not request.data.get("bookings"):
+            return Response(
+                {"bookings": "This field is required."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        else:
-            return SeatBooking.objects.filter(
-                created_by__groups__in=self.request.user.groups.all()
-            ).annotate(
-                seat_name=F("seat__name"),
-                location_name=F("location_booking__bookable_location__name"),
-                event_name=F("location_booking__event_name"),
-                event_description=F("location_booking__event_description"),
-                start_time=F("location_booking__start_time"),
-                end_time=F("location_booking__end_time"),
-            )
+        order_serializer = self.get_serializer(data=request.data["order"])
+        order_serializer.is_valid(raise_exception=True)
+        self.perform_create(order_serializer)
+        order_headers = self.get_success_headers(order_serializer.data)
 
-    def perform_create(self, serializer):
-        if serializer.validated_data["seat"].restricted:
-            raise ValidationError("Seat is restricted")
-        if (
-            serializer.validated_data["seat"].bookable_location
-            != serializer.validated_data["location_booking"].bookable_location
-        ):
-            raise ValidationError(
-                "Seat and location booking are not in the same location"
-            )
-        serializer.save(created_by=self.request.user)
+        # create bookings with order id
+        id = order_serializer.data["id"]
+        bookings = request.data["bookings"]
+        for booking in bookings:
+            booking["order"] = id
 
-    def perform_update(self, serializer):
-        serializer.save(updated=self.request.user)
+        self.serializer_class = BookingSerializer
+        booking_serializer = self.get_serializer(data=bookings, many=True)
+        booking_serializer.is_valid(raise_exception=True)
+        self.perform_create(booking_serializer)
+        booking_headers = self.get_success_headers(booking_serializer.data)
+
+        # merge 2 dicts
+        headers = order_headers.update(booking_headers)
+
+        return Response(
+            order_serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
+
+    # @transaction.atomic
+    # def create(self, request, *args, **kwargs):
+    #     if not request.data.get("bookings"):
+    #         return Response(
+    #             {"bookings": "This field is required."},
+    #             status=status.HTTP_400_BAD_REQUEST,
+    #         )
+    #     serializer = self.get_serializer(data=request.data["order"])
+    #     serializer.is_valid(raise_exception=True)
+    #     instance = serializer.save()
+    #     for booking in request.data["bookings"]:
+    #         booking["order"] = instance.id
+    #         self.serializer_class = BookingSerializer
+    #         booking_serializer = self.get_serializer(data=booking)
+    #         booking_serializer.is_valid(raise_exception=True)
+    #         booking_serializer.save()
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
