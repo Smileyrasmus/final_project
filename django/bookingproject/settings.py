@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "rest_framework.authtoken",
-    "alternativebookingapi",
+    "bookingapi",
     "accounts",
     "dry_rest_permissions",
 ]
