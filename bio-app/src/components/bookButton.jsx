@@ -77,15 +77,13 @@ function BookButton(props) {
   }
 
   return (
-    <div>
-      <button
-        class={styles.bookButton}
-        onClick={clickedBook}
-        disabled={isDisabled()}
-      >
-        <div>Køb billet</div>
-      </button>
-    </div>
+    <button
+      class={styles.bookButton}
+      onClick={clickedBook}
+      disabled={isDisabled()}
+    >
+      <div>Køb billet</div>
+    </button>
   );
 }
 
