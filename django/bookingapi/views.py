@@ -89,6 +89,19 @@ class OrderViewSet(BaseViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated, IsOwner]
+    filterset_fields = ["customer_id"]
+    ordering_fields = ["created_at", "updated_at"]
+    ordering = ["created_at"]
+
+    def get_queryset(self):
+        event_id = self.request.query_params.get("event_id")
+        if event_id:
+            return (
+                self.filter_queryset(self.queryset)
+                .filter(bookings__event__id__exact=event_id)
+                .distinct()
+            )
+        return super().get_queryset()
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
