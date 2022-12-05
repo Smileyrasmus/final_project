@@ -9,18 +9,12 @@ export default function CustomerSelector(props) {
   );
 
   async function makeAlreadyBookedSeatsYellow(selectedCustomer, selectedMovie) {
-    // safeguard
+    // safeguards
     const client = props.state?.client;
-    if (!client) return;
-
-    // safeguard
-    if (!selectedCustomer) return;
-
-    // safeguard
-    if (!selectedMovie) return;
-
-    // safeguard
     const seats = props.state?.seats;
+    if (!client) return;
+    if (!selectedCustomer) return;
+    if (!selectedMovie) return;
     if (!seats) return;
 
     const response = await client.getAllAsync("orders", {

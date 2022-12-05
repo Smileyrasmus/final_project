@@ -4,15 +4,11 @@ function MovieSelector(props) {
   createEffect(() => updateSeatStates(props.state.selectedMovie));
 
   async function updateSeatStates(movie) {
-    // safeguard
+    // safeguards
     const client = props.state?.client;
-    if (!client) return;
-
-    // safeguard
-    if (!movie) return;
-
-    // safeguard
     const seats = props.state?.seats;
+    if (!client) return;
+    if (!movie) return;
     if (!seats) return;
 
     // get all the bookable items for this movie
