@@ -48,14 +48,14 @@ class OrderSerializer(BaseSerializer):
         ]
         read_only_fields = ["bookings"]
 
-    def save(self, **kwargs):
+    def validate(self, data):
         user = self._user(self)
         if user.conditions["order"]["require_customer"]:
-            if not self.validated_data.get("customer_id"):
+            if not data["customer_id"]:
                 raise serializers.ValidationError(
                     {"customer_id": "Customer ID is required"}
                 )
-        return super().save(**kwargs)
+        return data
 
 
 class BookingSerializer(BaseSerializer):
@@ -77,20 +77,31 @@ class BookingSerializer(BaseSerializer):
         user = self._user(self)
         event = data["event"]
         bookable_item = data.get("bookable_item", None)
+        booking = Booking.objects.filter(created_by=user)
+        id = self.instance.id if self.instance else None
+        if id:
+            booking = booking.exclude(id=id)
+        # if bookable_item and bookable_item.active == False:
+        #     raise serializers.ValidationError(
+        #         {"bookable_item": "Bookable item is not active"}
+        #     )
         if user.conditions["booking"]["require_bookable_item"]:
             if not bookable_item:
                 raise serializers.ValidationError(
                     {"bookable_item": "Bookable item is required"}
                 )
         if user.conditions["booking"]["duplicate_booking"] and bookable_item:
-            if (
-                Booking.objects.all()
-                .filter(bookable_item=bookable_item, event=event, created_by=user)
-                .exists()
-            ):
-                raise serializers.ValidationError(
-                    {"bookable_item": "Booking already exists"}
-                )
+            if bookable_item:
+                if booking.filter(event=event, bookable_item=bookable_item).exists():
+                    raise serializers.ValidationError(
+                        {"bookable_item": "Booking already exists"}
+                    )
+            else:  # if bookable_item is None
+                if booking.filter(event=event).exists():
+                    raise serializers.ValidationError(
+                        {"bookable_item": "Booking already exists"}
+                    )
+
         # TODO: 'bookable_item' object is not subscriptable
         # if not bookable_item["active"]:
         #     raise serializers.ValidationError(
@@ -115,47 +126,29 @@ class EventSerializer(BaseSerializer):
             "end_time",
         ]
 
-        def save(self, *args, **kwargs):
-            user = self._user(self)
-            name = self.validated_data.get("name")
-            start_time = self.validated_data.get("start_time")
-            end_time = self.validated_data.get("end_time")
-            location = self.validated_data.get("location")
-            id = self.validated_data.get("id")
-            if user.conditions["event"]["duplicate_event"]:
-                if Event.objects.filter(
-                    name=name,
-                    start_time=start_time,
-                    end_time=end_time,
-                    created_by=user,
-                ).exists():
-                    raise serializers.ValidationError({"name": "Event already exists"})
+    def validate(self, data):
+        user = self._user(self)
+        name = data["name"]
+        start_time = data["start_time"]
+        end_time = data["end_time"]
+        id = self.instance.id if self.instance else None
+        event = Event.objects.all().filter(created_by=user)
+        if id:
+            event = event.exclude(id=id)
+        if user.conditions["event"]["duplicate_event"]:
+            if event.objects.filter(
+                name=name, start_time=start_time, end_time=end_time
+            ).exists():
+                raise serializers.ValidationError({"name": "Event already exists"})
 
-            if user.conditions["event"]["start_end_overlay"] and id:
-                if (
-                    Event.objects.filter(
-                        start_time__lte=start_time,
-                        end_time__gte=end_time,
-                        created_by=user,
-                    )
-                    .exclude(id=id)
-                    .exists()
-                ):
-                    raise serializers.ValidationError(
-                        {"name": "Event start and end time overlap"}
-                    )
-
-            if user.conditions["event"]["start_end_overlay"]:
-                if Event.objects.filter(
-                    location=location,
-                    start_time__lte=start_time,
-                    end_time__gte=end_time,
-                    created_by=user,
-                ).exists():
-                    raise serializers.ValidationError(
-                        {"name": "Event overlaps existing event"}
-                    )
-            return super().save(**kwargs)
+        if user.conditions["event"]["start_end_overlay"]:
+            if event.objects.filter(
+                name=name, start_time__lte=start_time, end_time__gte=end_time
+            ).exists():
+                raise serializers.ValidationError(
+                    {"name": "Event overlaps existing event"}
+                )
+        return data
 
 
 class LocationSerializer(BaseSerializer):
@@ -172,15 +165,19 @@ class LocationSerializer(BaseSerializer):
             "events",
         ]
 
-    def save(self, *args, **kwargs):
+    def validate(self, data):
         user = self._user(self)
-        name = self.context["request"].data["name"]
-        if (
-            user.conditions["location"]["duplicate_location"]
-            and Location.objects.filter(name=name, created_by=user).exists()
-        ):
-            raise serializers.ValidationError("Location with this name already exists")
-        super().save(*args, **kwargs)
+        name = data["name"]
+        id = self.instance.id if self.instance else None
+        location = Location.objects.filter(created_by=user)
+        if id:
+            location = location.exclude(id=id)
+        if user.conditions["location"]["duplicate_location"]:
+            if location.filter(name=name).exists():
+                raise serializers.ValidationError(
+                    "Location with this name already exists"
+                )
+        return data
 
 
 class BookableItemSerializer(BaseSerializer):
@@ -198,15 +195,23 @@ class BookableItemSerializer(BaseSerializer):
             "location",
         ]
 
-    def save(self, *args, **kwargs):
+    def validate(self, data):
         user = self._user(self)
-        name = self.context["request"].data["name"]
-        location = self.context["request"].data["location"]
+        name = data["name"]
+        location = data.get("location", None)
+        id = self.instance.id if self.instance else None
+        bookable_item = BookableItem.objects.filter(created_by=user)
+        if id:
+            bookable_item = bookable_item.exclude(id=id)
         if user.conditions["bookable_item"]["duplicate_bookable_item"]:
-            if BookableItem.objects.filter(
-                name=name, location=location, created_by=user
-            ).exists():
-                raise serializers.ValidationError(
-                    "Bookable item on this location with this name already exists"
-                )
-        super().save(*args, **kwargs)
+            if location:
+                if bookable_item.filter(name=name, location=location).exists():
+                    raise serializers.ValidationError(
+                        "Bookable item on this location with this name already exists"
+                    )
+            else:
+                if bookable_item.filter(name=name).exists():
+                    raise serializers.ValidationError(
+                        "Bookable item with this name already exists"
+                    )
+        return data
