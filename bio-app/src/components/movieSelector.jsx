@@ -15,6 +15,7 @@ function MovieSelector(props) {
   createEffect(
     // use the on utility to make effect only react to change of selectedMovie
     on(props.state.selectedMovie, async (movie) => {
+      console.log("movie");
       // safeguard
       const client = props.state?.client;
       if (!client) return;

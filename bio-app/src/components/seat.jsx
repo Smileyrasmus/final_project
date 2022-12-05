@@ -14,6 +14,9 @@ function Seat(props) {
       case "occupied":
         color = "red";
         break;
+      case "occupiedBySelectedCustomer":
+        color = "yellow";
+        break;
       default:
         color = "gray";
     }
