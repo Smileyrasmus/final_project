@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import environ
+import psycopg2
 
 # Initialise environment variables
 env = environ.Env()
@@ -114,7 +115,10 @@ DATABASES = {
         "NAME": env("POSTGRES_DBNAME"),
         "USER": env("POSTGRES_USER"),
         "PASSWORD": env("POSTGRES_PASSWORD"),
-    }
+    },
+    "OPTIONS": {
+        "isolation_level": psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE,
+    },
 }
 
 
