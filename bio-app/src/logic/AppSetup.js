@@ -5,7 +5,7 @@ import seats from "../database/seats.json";
 import customers from "../database/customer.json";
 import BookingClient from "../logic/BookingClient";
 
-async function createState(client, setState) {
+function createState(client, setState) {
   const movies = movieShowings.filter((showing) => showing.theatreId === 1);
   const state = {
     // chooses theatre with id of 1 from the "database", and unpacks it's attributes(the ... operater).
