@@ -35,5 +35,5 @@ export default async function appSetup(setState) {
   await syncService.syncEverything(theatres, movieShowings, seats); // sync data objects
 
   // create the default state of the app
-  await createState(client, setState);
+  createState(client, setState);
 }
