@@ -6,6 +6,7 @@ from .permissions import IsOwner
 from rest_framework.response import Response
 from django.db import transaction
 from rest_framework.decorators import action
+from django.db.transaction import get_connection
 
 
 class BaseReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
@@ -110,27 +111,35 @@ class OrderViewSet(BaseViewSet):
                 {"bookings": "This field is required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        self.queryset = Order.objects.select_for_update().all()
+        if transaction.get_autocommit():
+            raise RuntimeError("Function should be called within an atomic block.")
+
+        cursor = get_connection().cursor()
+        cursor.execute(f"LOCK TABLE bookingapi_booking")
 
         order_serializer = self.get_serializer(data=request.data["order"])
-        order_serializer.is_valid(raise_exception=True)
-        self.perform_create(order_serializer)
-        order_headers = self.get_success_headers(order_serializer.data)
+        headers = None
+        try:
+            order_serializer.is_valid(raise_exception=True)
+            self.perform_create(order_serializer)
+            order_headers = self.get_success_headers(order_serializer.data)
 
-        # create bookings with order id
-        id = order_serializer.data["id"]
-        bookings = request.data["bookings"]
-        for booking in bookings:
-            booking["order"] = id
+            # create bookings with order id
+            id = order_serializer.data["id"]
+            bookings = request.data["bookings"]
+            for booking in bookings:
+                booking["order"] = id
 
-        self.serializer_class = BookingSerializer
-        booking_serializer = self.get_serializer(data=bookings, many=True)
-        booking_serializer.is_valid(raise_exception=True)
-        self.perform_create(booking_serializer)
-        booking_headers = self.get_success_headers(booking_serializer.data)
+            self.serializer_class = BookingSerializer
+            booking_serializer = self.get_serializer(data=bookings, many=True)
+            booking_serializer.is_valid(raise_exception=True)
+            self.perform_create(booking_serializer)
+            booking_headers = self.get_success_headers(booking_serializer.data)
 
-        # merge 2 dicts
-        headers = order_headers.update(booking_headers)
+            # merge 2 dicts
+            headers = order_headers.update(booking_headers)
+        finally:
+            cursor.close()
 
         return Response(
             order_serializer.data,
