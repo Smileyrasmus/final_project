@@ -2,6 +2,12 @@ import styles from "../App.module.css";
 import { createMemo } from "solid-js";
 
 function Seat(props) {
+  const isOccupiedBySelectedUser = createMemo(() => {
+    const isOccupiedBySelectedUser = props.data.isOccupiedBySelectedUser;
+    if (!isOccupiedBySelectedUser) return;
+    return isOccupiedBySelectedUser;
+  });
+
   const color = createMemo(() => {
     let color = null;
     switch (props.data.state) {
@@ -12,7 +18,7 @@ function Seat(props) {
         color = "green";
         break;
       case "occupied":
-        color = "red";
+        color = isOccupiedBySelectedUser() ? "yellow" : "red";
         break;
       default:
         color = "gray";

@@ -12,7 +12,10 @@ function App() {
   const [state, setState] = createStore({});
   const [connectionToApi, setConnectionToApi] = createSignal(true);
 
-  appSetup(setState).catch(() => setConnectionToApi(false));
+  appSetup(setState).catch((err) => {
+    console.error(err);
+    setConnectionToApi(false);
+  });
 
   const isLoaded = createMemo(() => {
     // just checks that the state has anything in it

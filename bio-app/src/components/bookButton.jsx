@@ -17,25 +17,21 @@ function BookButton(props) {
     }); // Make an array only containing the names of the seats, rather than an array of the whole seat object
 
     return confirm(
-      `Billetter til sæder "${selectedSeatNames}" til filmen "${
-        props.state.selectedMovie().name
-      }" gøres klar til at sende afsted med brevdue til "${
-        props.state.selectedCustomer().customer_id
-      }".`
+      `Billetter til sæder "${selectedSeatNames}" til filmen "${props.state.selectedMovie.name}" gøres klar til at sende afsted med brevdue til "${props.state.selectedCustomer.customer_id}".`
     );
   }
 
   function createOrderObject() {
-    let order = {
+    const order = {
       order: {
-        customer_id: props.state.selectedCustomer().customer_id,
+        customer_id: props.state.selectedCustomer.customer_id,
         note: "Made from bio app",
       },
       bookings: [],
     };
     for (let seat of selectedSeats()) {
       order.bookings.push({
-        event: props.state.selectedMovie().apiId,
+        event: props.state.selectedMovie.apiId,
         bookable_item: seat.apiId,
       });
     }
@@ -46,6 +42,7 @@ function BookButton(props) {
     for (let seat of selectedSeats()) {
       const index = props.state.seats.findIndex((s) => s.id === seat.id);
       props.setState("seats", [index], "state", "occupied");
+      props.setState("seats", [index], "isOccupiedBySelectedUser", true);
     }
   }
 
@@ -80,15 +77,13 @@ function BookButton(props) {
   }
 
   return (
-    <div>
-      <button
-        class={styles.bookButton}
-        onClick={clickedBook}
-        disabled={isDisabled()}
-      >
-        <div>Køb billet</div>
-      </button>
-    </div>
+    <button
+      class={styles.bookButton}
+      onClick={clickedBook}
+      disabled={isDisabled()}
+    >
+      <div>Køb billet</div>
+    </button>
   );
 }
 

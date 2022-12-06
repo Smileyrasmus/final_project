@@ -20,19 +20,19 @@ class BaseSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(BaseSerializer):
-    booking = serializers.SerializerMethodField()
+    bookings = serializers.SerializerMethodField()
 
-    def get_booking(self, obj):
-        return {
-            "bookings": obj.bookings.all().values(
-                "id",
-                "bookable_item__name",
-                "event__name",
-                "event__start_time",
-                "event__end_time",
-                "bookable_item__location__name",
-            ),
-        }
+    def get_bookings(self, obj):
+        return obj.bookings.all().values(
+            "id",
+            "bookable_item__id",
+            "bookable_item__name",
+            "event__id",
+            "event__name",
+            "event__start_time",
+            "event__end_time",
+            "bookable_item__location__name",
+        )
 
     class Meta:
         model = Order
@@ -44,7 +44,9 @@ class OrderSerializer(BaseSerializer):
             "user_link",
             "customer_id",
             "note",
-            "booking",
+            "bookings",
+            "created_at",
+            "updated_at",
         ]
         read_only_fields = ["bookings"]
 
