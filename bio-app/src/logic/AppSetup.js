@@ -24,12 +24,22 @@ function createState(client, setState) {
   setState(state);
 }
 
-export default async function appSetup(setState) {
-  // create the booking api client
+async function createClient() {
   const bookingApiHost = import.meta.env?.VITE_BOOKING_API_HOST ?? "localhost";
-  const client = new BookingClient(`http://${bookingApiHost}:8000`);
-  await client.authenticate("admin", "admin");
+  const bookingApiPort = import.meta.env?.VITE_BOOKING_API_PORT ?? "8000";
+  const bookingApiUsername =
+    import.meta.env?.VITE_BOOKING_API_USERNAME ?? "bio_app";
+  const bookingApiPassword =
+    import.meta.env?.VITE_BOOKING_API_PASSWORD ?? "bio_app";
+  const client = new BookingClient(
+    `http://${bookingApiHost}:${bookingApiPort}`
+  );
+  await client.authenticate(`${bookingApiUsername}`, `${bookingApiPassword}`);
+  return client;
+}
 
+export default async function appSetup(setState) {
+  const client = await createClient();
   // create the sync service to syncronize state objects with the booking api database
   const syncService = new SyncService(client);
   await syncService.syncEverything(theatres, movieShowings, seats); // sync data objects

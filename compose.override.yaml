@@ -32,6 +32,11 @@ services:
       - ./bio-app:/usr/src/app
       - exclude:/usr/src/app/node_modules/
     command: bash -c "npm run dev -- --host"
+    environment:
+      VITE_BOOKING_API_HOST: ${BOOKING_API_HOST:-localhost}
+      VITE_BOOKING_API_PORT: ${BOOKING_API_PORT:-8000}
+      VITE_BOOKING_API_USERNAME: ${BOOKING_API_USERNAME:-bio_app}
+      VITE_BOOKING_API_PASSWORD: ${BOOKING_API_PASSWORD:-bio_app}
     ports:
       - 3000:3000
 
