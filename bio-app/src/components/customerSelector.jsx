@@ -41,7 +41,7 @@ export default function CustomerSelector(props) {
         "seats",
         [seatIndex],
         "isOccupiedBySelectedUser",
-        isOccupied ? true : false
+        isOccupied
       );
     }
   }
