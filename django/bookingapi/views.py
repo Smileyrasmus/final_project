@@ -111,9 +111,10 @@ class OrderViewSet(BaseViewSet):
                 {"bookings": "This field is required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        if transaction.get_autocommit():
-            raise RuntimeError("Function should be called within an atomic block.")
 
+        # The only way to block a potential double booking, is to lock the whole database table.
+        # It is not enough to just lock all of the rows of the table, because this action creates
+        # new rows, which also needs to be locked, until transaction is either committed og rolled back.
         cursor = get_connection().cursor()
         cursor.execute(f"LOCK TABLE bookingapi_booking")
 
@@ -139,6 +140,7 @@ class OrderViewSet(BaseViewSet):
             # merge 2 dicts
             headers = order_headers.update(booking_headers)
         finally:
+            # close the cursor and thereby unlock the table
             cursor.close()
 
         return Response(
