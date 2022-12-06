@@ -110,26 +110,28 @@ class OrderViewSet(BaseViewSet):
                 {"bookings": "This field is required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        self.queryset = Order.objects.select_for_update().all()
         order_serializer = self.get_serializer(data=request.data["order"])
         headers = None
-        order_serializer.is_valid(raise_exception=True)
-        self.perform_create(order_serializer)
-        order_headers = self.get_success_headers(order_serializer.data)
+        with transaction.atomic():
+            order_serializer.is_valid(raise_exception=True)
+            self.perform_create(order_serializer)
+            order_headers = self.get_success_headers(order_serializer.data)
 
-        # create bookings with order id
-        id = order_serializer.data["id"]
-        bookings = request.data["bookings"]
-        for booking in bookings:
-            booking["order"] = id
+            # create bookings with order id
+            id = order_serializer.data["id"]
+            bookings = request.data["bookings"]
+            for booking in bookings:
+                booking["order"] = id
 
-        self.serializer_class = BookingSerializer
-        booking_serializer = self.get_serializer(data=bookings, many=True)
-        booking_serializer.is_valid(raise_exception=True)
-        self.perform_create(booking_serializer)
-        booking_headers = self.get_success_headers(booking_serializer.data)
+            self.serializer_class = BookingSerializer
+            booking_serializer = self.get_serializer(data=bookings, many=True)
+            booking_serializer.is_valid(raise_exception=True)
+            self.perform_create(booking_serializer)
+            booking_headers = self.get_success_headers(booking_serializer.data)
 
-        # merge 2 dicts
-        headers = order_headers.update(booking_headers)
+            # merge 2 dicts
+            headers = order_headers.update(booking_headers)
 
         return Response(
             order_serializer.data,
