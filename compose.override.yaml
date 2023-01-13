@@ -11,7 +11,6 @@ services:
       target: base
     volumes:
       - ./django:/usr/src/app
-    command: bash -c "sleep ${DJANGO_DELAY:-3}; python manage.py migrate; python manage.py createsuperuser --noinput; python manage.py runserver 0.0.0.0:8000"
     environment:
       DJANGO_DELAY: ${DJANGO_DELAY:-3}
       POSTGRES_HOST: ${POSTGRES_HOST:-db}
@@ -31,7 +30,6 @@ services:
     volumes:
       - ./bio-app:/usr/src/app
       - exclude:/usr/src/app/node_modules/
-    command: bash -c "npm run dev -- --host"
     environment:
       VITE_BOOKING_API_HOST: ${BOOKING_API_HOST:-localhost}
       VITE_BOOKING_API_PORT: ${BOOKING_API_PORT:-8000}

@@ -1,4 +1,4 @@
-# dev just uses the image, volume is created in composer. You need to manually install packages
+# base used for development
 FROM node:19 as base
 
 WORKDIR /usr/src/app
@@ -6,7 +6,9 @@ WORKDIR /usr/src/app
 COPY package.json ./
 RUN npm install
 
-# production does not use predifined volume, so needs to copy sorce code
+CMD ["npm", "run", "dev", "--", "--host"]
+
+# prod used for what we call production
 FROM base as prod
 
 COPY . .

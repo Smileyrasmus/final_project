@@ -17,9 +17,6 @@ services:
       - 8080:8080
 
   booking_api:
-    build: ./django/
-    volumes:
-      - ./django:/usr/src/app
     restart: always
     depends_on:
       - db
